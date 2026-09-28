@@ -1,0 +1,189 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Resolve — pitch deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:1280px 720px;margin:0}
+:root{--ink:#141416;--muted:#7a7f8a;--line:#ececef;--soft:#f6f6f8;--green:#15803d;--greenbg:#e6f6ec;--red:#d92d20;--redbg:#fdecec;--amber:#b45309;--amberbg:#fff4e0;--violet:#6d4aff;--violetbg:#efeaff}
+html,body{margin:0;background:#2a2a2e;font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.slide{width:1280px;height:720px;box-sizing:border-box;background:#f2f2f4;position:relative;page-break-after:always;margin:20px auto;overflow:hidden;padding:24px}
+@media print{.slide{margin:0}body{background:#fff}}
+.shell{position:relative;width:100%;height:100%;box-sizing:border-box;background:#fff;border-radius:22px;padding:56px 64px;overflow:hidden;display:flex;flex-direction:column}
+.blob{position:absolute;inset:0;pointer-events:none;background:radial-gradient(720px 520px at 88% 8%,rgba(255,196,170,.55),rgba(255,196,170,0) 70%),radial-gradient(520px 420px at 100% 50%,rgba(225,205,255,.45),rgba(225,205,255,0) 70%)}
+.blob.alert{background:radial-gradient(760px 540px at 88% 8%,rgba(255,170,150,.6),rgba(255,170,150,0) 70%),radial-gradient(520px 440px at 100% 52%,rgba(255,120,120,.3),rgba(255,120,120,0) 70%)}
+.blob.good{background:radial-gradient(760px 540px at 88% 8%,rgba(170,240,205,.6),rgba(170,240,205,0) 70%),radial-gradient(520px 440px at 100% 52%,rgba(130,205,255,.35),rgba(130,205,255,0) 70%)}
+.blob.violet{background:radial-gradient(760px 540px at 88% 8%,rgba(205,190,255,.6),rgba(205,190,255,0) 70%),radial-gradient(520px 440px at 100% 52%,rgba(255,196,170,.35),rgba(255,196,170,0) 70%)}
+.z{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;padding:34px 0 40px}
+.k{position:absolute;top:0;left:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.k b{color:var(--ink)}
+h1{font-size:56px;line-height:1.05;letter-spacing:-.03em;font-weight:600;margin:0 0 14px}
+h1.xl{font-size:76px}
+.sub{font-size:22px;color:var(--muted);margin:0;line-height:1.4}
+.n{position:absolute;right:64px;bottom:34px;font-size:12px;color:var(--muted);z-index:1}
+.foot{margin-top:22px;font-size:13px;color:var(--muted)}
+.cards{display:grid;gap:14px;margin-top:34px}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.card small{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.card b{display:block;font-size:30px;letter-spacing:-.02em;font-weight:600;line-height:1.1}
+.card p{margin:8px 0 0;font-size:16px;color:#3d4048;line-height:1.45}
+.card.tint-red{background:var(--redbg);border-color:#f9d3d0}.card.tint-green{background:var(--greenbg);border-color:#c8ebd5}.card.tint-amber{background:var(--amberbg);border-color:#f6e2b8}.card.tint-violet{background:var(--violetbg);border-color:#dcd3ff}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-red{background:var(--redbg);color:var(--red)}.p-green{background:var(--greenbg);color:var(--green)}.p-amber{background:var(--amberbg);color:var(--amber)}.p-violet{background:var(--violetbg);color:var(--violet)}.p-grey{background:var(--soft);color:var(--muted)}
+.flow{display:flex;align-items:stretch;gap:10px;margin-top:26px}
+.flow .bx{flex:1;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 18px}
+.flow .bx small{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+.flow .bx b{display:block;font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.flow .bx span{font-size:13.5px;color:#3d4048;line-height:1.4}
+.flow .ar{align-self:center;color:#c2c5cc;font-size:22px}
+.shot{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 10px 30px rgba(20,20,22,.08)}
+.shot img{display:block;width:100%}
+.cap{font-size:13px;color:var(--muted);margin-top:10px}
+.cap b{color:var(--ink);font-weight:600}
+table{border-collapse:collapse;width:100%}
+td,th{text-align:left;padding:11px 0;border-bottom:1px solid var(--line);font-size:16px}
+th{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+td.num{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:14px}
+.bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:6px}.bar i{flex:1;height:4px;border-radius:99px;background:var(--line)}.bar i.d{background:#8fd3a8}.bar i.c{background:var(--ink)}
+.stat{display:flex;flex-direction:column}.stat b{font-size:64px;font-weight:600;letter-spacing:-.04em;line-height:1}.stat span{font-size:15px;color:var(--muted);margin-top:8px}
+.btn{display:inline-block;background:var(--ink);color:#fff;border-radius:999px;padding:12px 22px;font-size:15px;font-weight:600;margin-top:30px}
+</style></head><body>
+
+<!-- 1 · hook -->
+<section class="slide"><div class="shell"><div class="blob alert"></div><div class="z">
+  <div class="k">Challenge 07 · Fikra Ventures</div>
+  <div>
+    <h1 class="xl">An invoice can be valid.<br>And still not be ready to pay.</h1>
+    <p class="sub">Resolve — the missing-evidence layer for accounts payable.</p>
+  </div>
+  <div class="bar"><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div><div class="n">1 / 9</div></div></section>
+
+<!-- 2 · problem -->
+<section class="slide"><div class="shell"><div class="blob"></div><div class="z">
+  <div class="k">The problem</div>
+  <h1>Matching is solved.<br>Missing evidence is not.</h1>
+  <p class="sub">The ERP says “mismatch”. Someone still has to find out why, from whom, and what would close it.</p>
+  <div class="cards c3">
+    <div class="card"><small>Today</small><b>Chase.</b><p>Open invoice → find PO → check receipts → email the branch → chase procurement → compare again.</p></div>
+    <div class="card"><small>Where the facts live</small><b>Outside the ERP.</b><p>A receiver’s head, a supplier’s email, a procurement inbox. ERPs record outcomes, not investigations.</p></div>
+    <div class="card"><small>Who pays for it</small><b>Finance.</b><p>Ageing invoices, accruals nobody can approve, and the audit question: <i>why did you pay this?</i></p></div>
+  </div>
+  <div class="bar"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div><div class="n">2 / 9</div></div></section>
+
+<!-- 3 · why now -->
+<section class="slide"><div class="shell"><div class="blob violet"></div><div class="z">
+  <div class="k">Why now · UAE</div>
+  <h1>E-invoicing proves an invoice was <u>sent</u>.<br>Not that goods arrived.</h1>
+  <div class="cards c2">
+    <div class="card tint-violet"><small>Regulatory clock</small><b>30 Oct 2026 · 1 Jan 2027</b><p>ASP appointed · e-invoicing live for businesses ≥ AED 50M revenue. Every finance team is opening its stack this year.</p></div>
+    <div class="card"><small>The gap it leaves</small><b>Transmission ≠ approval.</b><p>A structured invoice still cannot prove 100 boxes arrived, that AED 22 was authorised, or that the delivery wasn’t already billed.</p></div>
+  </div>
+  <div class="foot">FTA Decision 244/2025 as amended by 66/2026 · MoF eInvoicing programme</div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div><div class="n">3 / 9</div></div></section>
+
+<!-- 4 · product -->
+<section class="slide"><div class="shell"><div class="blob"></div><div class="z">
+  <div class="k">The product</div>
+  <h1>The unit of work is a <em>case</em>.<br>Not a document. Not a chat.</h1>
+  <p class="sub">Four authorities. Each one does exactly one thing.</p>
+  <div class="cards c4">
+    <div class="card tint-violet"><small>Model</small><b>Investigates</b><p>Reads records, finds amendments, drafts the smallest request per blocker.</p></div>
+    <div class="card tint-amber"><small>Code</small><b>Proves</b><p>Decimal checks, tolerances, receipt allocation. Only rules clear a blocker.</p></div>
+    <div class="card tint-green"><small>Human</small><b>Sends</b><p>Approves recipient and message. Owns the money decision.</p></div>
+    <div class="card"><small>ERP</small><b>Pays</b><p>Receives the packet in its existing approval flow. Resolve has no payment permission.</p></div>
+  </div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i></div>
+</div><div class="n">4 / 9</div></div></section>
+
+<!-- 5 · demo: the case -->
+<section class="slide"><div class="shell" style="padding:44px 64px 40px"><div class="z">
+  <div class="k">Live demo · <b>R-1042</b> · synthetic records</div>
+  <div style="display:grid;grid-template-columns:1fr 290px;gap:36px;align-items:start">
+    <div class="shot"><img src="case.png" alt="Resolve story mode — case R-1042"></div>
+    <div>
+      <h1 style="font-size:34px">Two facts are missing.</h1>
+      <table>
+        <tr><th>Record</th><th></th></tr>
+        <tr><td>Ordered</td><td class="num">100 × AED 20</td></tr>
+        <tr><td>Received</td><td class="num">80</td></tr>
+        <tr><td>Invoiced</td><td class="num">100 × AED 22</td></tr>
+      </table>
+      <p style="margin:18px 0 0;font-size:14px;color:#3d4048;line-height:1.5"><span class="pill p-red">missing receipt</span> owner: receiving · AED 400<br><span class="pill p-violet" style="margin-top:6px">price unsupported</span> owner: procurement · AED 200</p>
+      <p class="cap">Found by rules, not by the model.</p>
+    </div>
+  </div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i></div>
+</div><div class="n">5 / 9</div></div></section>
+
+<!-- 6 · decisive moment -->
+<section class="slide"><div class="shell" style="padding:44px 64px 40px"><div class="z">
+  <div class="k">The decisive moment</div>
+  <h1 style="font-size:40px;margin-bottom:22px">An email clears nothing. A record clears everything.</h1>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div><div class="shot"><img src="email.png" alt="Supplier email recorded as untrusted"></div><p class="cap"><span class="pill p-amber">untrusted</span> &nbsp;Supplier: “delivered, please pay.” &nbsp;<b>2 → 2 blockers.</b></p></div>
+    <div><div class="shot"><img src="erp.png" alt="Resolution packet handed to ERP"></div><p class="cap"><span class="pill p-green">authoritative</span> &nbsp;GRN + approved amendment. &nbsp;<b>Packet to ERP. No payment initiated.</b></p></div>
+  </div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i></div>
+</div><div class="n">6 / 9</div></div></section>
+
+<!-- 7 · architecture -->
+<section class="slide"><div class="shell"><div class="blob"></div><div class="z">
+  <div class="k">Architecture</div>
+  <h1 style="font-size:44px">Let the model investigate.<br>Keep the money logic in code.</h1>
+  <div class="flow">
+    <div class="bx"><small>1</small><b>Sources</b><span>ASP / ERP invoice, PO, receipts, amendments, case mailbox. No LLM in parsing.</span></div><div class="ar">→</div>
+    <div class="bx"><small>2</small><b>Evidence</b><span>Immutable records: source id, entity, version, hash, trust level.</span></div><div class="ar">→</div>
+    <div class="bx"><small>3</small><b>Rules</b><span>Decimal arithmetic, tolerances, per-line receipt allocation.</span></div><div class="ar">↔</div>
+    <div class="bx"><small>4</small><b>Agent</b><span>6 typed, case-scoped tools. 10-call budget. Proposes; never clears.</span></div><div class="ar">→</div>
+    <div class="bx"><small>5</small><b>Policy</b><span>Rejects unknown sources, wrong owners, pay / bank language.</span></div><div class="ar">→</div>
+    <div class="bx"><small>6</small><b>Reviewer</b><span>Blockers, drafts, packet → existing ERP approval.</span></div>
+  </div>
+  <div class="cards c2" style="margin-top:16px">
+    <div class="card"><small>Stack</small><p style="margin:0;font-size:17px">Python / FastAPI · PostgreSQL · React · one structured-output model. No fine-tuning, no vector DB, no payment agent.</p></div>
+    <div class="card"><small>Controls that survive a bad document</small><p style="margin:0;font-size:17px">Documents and email are untrusted input. No tool to send, pay or change bank details exists. Injection is a permissions problem, not a prompt problem.</p></div>
+  </div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i></div>
+</div><div class="n">7 / 9</div></div></section>
+
+<!-- 8 · proof -->
+<section class="slide"><div class="shell"><div class="blob good"></div><div class="z">
+  <div class="k">Proof · first 30 days</div>
+  <h1>“It sounds right” is not<br>an acceptance criterion.</h1>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px;align-items:start">
+    <div>
+      <div class="cards c3" style="margin:0">
+        <div class="card"><div class="stat"><b>0</b><span>critical false clears</span></div></div>
+        <div class="card"><div class="stat"><b>0</b><span>unauthorised side effects</span></div></div>
+        <div class="card"><div class="stat"><b>94%</b><span>recall · gate 95% · 1 gap named</span></div></div>
+      </div>
+      <p class="cap" style="margin-top:14px">Prototype harness: 40 labelled synthetic cases, per-type recall / precision, rules-vs-model baseline, red-team run. Same harness runs on the customer’s cases.</p>
+    </div>
+    <table>
+      <tr><th>Days</th><th>What happens</th></tr>
+      <tr><td class="num">1–7</td><td>Ten real cases with AP, receiving, procurement. Baseline and scope.</td></tr>
+      <tr><td class="num">8–14</td><td>Read-only imports, two blocker checks, reviewer screen.</td></tr>
+      <tr><td class="num">15–21</td><td>Shadow mode on 100 held-out cases. Incumbent on the same set.</td></tr>
+      <tr><td class="num">22–30</td><td>Assisted queue, mandatory review, drafts only. <b>Go · narrow · stop.</b></td></tr>
+    </table>
+  </div>
+  <div class="foot">Gates: ≥95% recall · ≥90% precision · 0 false clears · 0 side effects · ≥50% less investigation time</div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i></div>
+</div><div class="n">8 / 9</div></div></section>
+
+<!-- 9 · company + ask -->
+<section class="slide"><div class="shell"><div class="blob alert"></div><div class="z">
+  <div class="k">The company</div>
+  <h1>The asset isn’t the rules.<br>It’s the resolution record.</h1>
+  <div class="cards c3">
+    <div class="card"><small>Year 1</small><b>Two blockers.</b><p>Missing receipts, price amendments. UAE healthcare groups, then any multi-site buyer of goods.</p></div>
+    <div class="card"><small>Year 2</small><b>Same engine.</b><p>New rule packs: disputes, credit notes, contract-vs-invoice. KSA and one EU e-invoicing market.</p></div>
+    <div class="card tint-green"><small>What compounds</small><b>What closed it.</b><p>For every blocked invoice: what was missing, who owned it, what resolved it, how long. No ERP holds this.</p></div>
+  </div>
+  <div style="margin-top:36px;display:flex;align-items:center;justify-content:space-between;gap:30px">
+    <p class="sub" style="max-width:720px;color:var(--ink)"><b>The ask:</b> one controller, one AP reviewer, ten blocked invoices. Thirty days to a shadow-mode result — go, narrow or stop, with numbers.</p>
+    <span class="btn" style="margin-top:0">Start with ten cases →</span>
+  </div>
+  <div class="bar"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i></div>
+</div><div class="n">9 / 9</div></div></section>
+</body></html>

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Resolve</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141416;--muted:#7a7f8a;--line:#ececef;--soft:#f6f6f8;--green:#15803d;--greenbg:#e6f6ec;--red:#d92d20;--redbg:#fdecec;--amber:#b45309;--amberbg:#fff4e0;--violet:#6d4aff;--violetbg:#efeaff;--blue:#0e7490;--bluebg:#e6f4f8;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:#ebebee;font:14px/1.5 Inter,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.window{max-width:1280px;margin:22px auto;background:#fff;border-radius:22px;box-shadow:0 30px 80px rgba(20,20,30,.12),0 1px 0 rgba(0,0,0,.04);overflow:hidden;min-height:calc(100vh - 44px);position:relative}
+/* top bar */
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 28px;position:relative;z-index:3}
+.top .l,.top .r{display:flex;align-items:center;gap:10px}.top .r{justify-content:flex-end}
+.logo{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:15px;color:var(--ink)}
+.entity{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px 6px 8px;font-size:13px;font-weight:500}
+.entity i{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#ffb27a,#ff6f91);display:inline-block}
+.entity span{color:var(--muted);font-weight:400}
+.tabs{display:flex;gap:2px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs a{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:500;color:var(--ink);text-decoration:none}
+.tabs a.on{background:#fff1e6;color:#e5560f}
+.ic{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;cursor:pointer;color:var(--ink);font-size:13px;position:relative}
+.ic.on{background:#fff1e6;border-color:#ffd9bf;color:#e5560f}
+.ic .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#ff5a3d;border:1.5px solid #fff}
+.avatar{width:34px;height:34px;border-radius:10px;background:#141416;color:#fff;font-weight:700;font-size:12px;display:grid;place-items:center}
+/* hero */
+.hero{position:relative;padding:44px 56px 26px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:48px;align-items:start}
+.blob{position:absolute;right:-60px;top:-220px;width:900px;height:640px;pointer-events:none;z-index:0;
+ background:radial-gradient(closest-side at 55% 50%,rgba(255,196,130,.95),transparent 72%),radial-gradient(closest-side at 78% 62%,rgba(148,110,255,.85),transparent 70%),radial-gradient(closest-side at 40% 70%,rgba(255,140,170,.75),transparent 70%);filter:blur(46px);opacity:1;transition:opacity .6s}
+.hero.calm .blob{opacity:.55}.hero.alert .blob{background:radial-gradient(closest-side at 55% 50%,rgba(255,160,140,.95),transparent 72%),radial-gradient(closest-side at 78% 62%,rgba(255,90,90,.6),transparent 70%),radial-gradient(closest-side at 40% 70%,rgba(255,200,150,.8),transparent 70%)}
+.hero.good .blob{background:radial-gradient(closest-side at 55% 50%,rgba(160,240,200,.95),transparent 72%),radial-gradient(closest-side at 78% 62%,rgba(120,200,255,.8),transparent 70%),radial-gradient(closest-side at 40% 70%,rgba(200,255,220,.8),transparent 70%)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff);z-index:1;pointer-events:none}
+.hero .txt{position:relative;z-index:2;padding-top:6px}
+.eyebrow{font-size:12.5px;color:var(--muted);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.eyebrow b{color:var(--ink);font-weight:600}
+h1{font-size:40px;line-height:1.12;letter-spacing:-.03em;font-weight:600;margin:0 0 14px}
+.sub{font-size:16px;color:#5b606a;margin:0 0 26px;max-width:600px;min-height:0}.sub:empty{display:none}
+.cta{display:flex;align-items:center;gap:14px}
+.btn{font:inherit;font-weight:600;font-size:14px;border:0;border-radius:999px;padding:12px 22px;cursor:pointer;background:#141416;color:#fff;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(0,0,0,.14);transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.link{font:inherit;color:var(--muted);background:none;border:0;cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.keys{font-size:12px;color:var(--muted);display:flex;gap:10px}.keys kbd{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px}
+.spot{position:relative;width:100%;background:#fff;border-radius:16px;box-shadow:0 20px 50px rgba(20,20,40,.14),0 0 0 1px rgba(0,0,0,.03);padding:16px 18px;z-index:2;animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.spot .h{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;margin-bottom:10px}.spot .h small{margin-left:auto;font-weight:400;color:var(--muted);font-size:12px}
+.al{padding:10px 0;border-top:1px solid var(--line)}.al:first-of-type{border-top:0}
+.al .t{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600}.al .t span:last-child{font-family:var(--mono);font-weight:500;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;margin-top:8px}
+.pill.red{background:var(--redbg);color:var(--red)}.pill.green{background:var(--greenbg);color:var(--green)}.pill.grey{background:var(--soft);color:var(--muted)}.pill.amber{background:var(--amberbg);color:var(--amber)}.pill.violet{background:var(--violetbg);color:var(--violet)}
+.spot .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
+.spot .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}.spot .kpis div{background:var(--soft);border-radius:10px;padding:10px 12px}.spot .kpis small{display:block;font-size:11.5px;color:var(--muted)}.spot .kpis b{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.spot .kpis b.red{color:var(--red)}.spot .kpis b.green{color:var(--green)}
+/* stepper */
+.stepper{display:flex;gap:5px;padding:0 56px 26px;position:relative;z-index:2}
+.stepper .stp{flex:1;height:4px;border-radius:99px;background:var(--line);cursor:pointer;position:relative;padding:0;border:0}
+.stepper .stp.done{background:#8fd3a8}.stepper .stp.cur{background:#141416}
+.stepper .stp:hover::after{content:attr(data-t);position:absolute;top:10px;left:0;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.stp{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 12px 6px 6px;font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--line);cursor:pointer;white-space:nowrap}
+.stp i{width:20px;height:20px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:11px;font-style:normal;font-weight:600;color:var(--muted)}
+.stp.cur{background:#141416;color:#fff;border-color:#141416;font-weight:500}.stp.cur i{background:#fff;color:#141416}
+.stp.done i{background:var(--greenbg);color:var(--green)}.stp.done i::before{content:"✓"}.stp.done i span{display:none}
+/* content */
+.content{padding:0 56px 40px}
+.pagefoot{display:flex;align-items:center;justify-content:space-between;padding:22px 0 0;border-top:1px solid var(--line);margin-top:8px}
+.details{margin-top:22px;animation:pop .3s ease}
+.sec{margin-bottom:28px}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}.sh h2{font-size:13px;font-weight:600;margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.sh p{margin:0;color:var(--muted);font-size:12.5px;display:none}
+.sh .tools{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;background:#fff;color:var(--ink)}
+.chip.green{background:var(--greenbg);border-color:#cdebd8;color:var(--green)}.chip.red{background:var(--redbg);border-color:#f6c9c4;color:var(--red);text-decoration:line-through}.chip.mono{font-family:var(--mono);font-size:11.5px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:#fff}
+.kpi small{display:block;font-size:12.5px;color:var(--muted)}.kpi b{display:block;font-size:28px;font-weight:600;letter-spacing:-.02em;margin:4px 0 6px}.kpi b.green{color:var(--green)}
+.kpi .d{font-size:12px;color:var(--muted)}.kpi .d.green{color:var(--green)}.kpi .d.red{color:var(--red)}
+.bar{height:5px;border-radius:99px;background:var(--soft);margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .6s}
+.bar i.warn{background:linear-gradient(90deg,#fb923c,#ef4444)}
+.tbl{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff}
+.tbl .hd,.tbl .row{display:grid;align-items:center;gap:14px;padding:12px 18px}
+.tbl .hd{font-size:12px;color:var(--muted);background:var(--soft)}
+.tbl .row{border-top:1px solid var(--line);font-size:13.5px;animation:pop .3s ease}
+.tbl .row .dt{width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;margin-right:10px;vertical-align:middle}
+.tbl .row.rej{background:#fff7f6}.tbl .row.rej .dt{background:var(--red)}
+.m{font-family:var(--mono);font-size:12.5px}
+.st{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.st.green{background:var(--greenbg);color:var(--green)}.st.red{background:var(--redbg);color:var(--red)}.st.grey{background:var(--soft);color:var(--muted)}.st.amber{background:var(--amberbg);color:var(--amber)}
+.why{color:#4b5058;font-size:13px}.why b{display:block;color:var(--red);font-weight:500;font-size:12.5px;margin-top:2px}
+.sum{display:flex;gap:28px;margin-top:14px;padding:0 4px;font-size:12.5px;color:var(--muted)}.sum b{display:block;font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-.01em}.sum b.red{color:var(--red)}.sum b.green{color:var(--green)}
+/* pastel authority cards */
+.auth{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.ac{border-radius:var(--r);padding:16px 18px;min-height:104px;position:relative;overflow:hidden;opacity:.55;transition:all .35s;border:1px solid transparent}
+.ac.on{opacity:1;box-shadow:0 10px 30px rgba(20,20,40,.08)}
+.ac b{display:block;font-size:14px;font-weight:600}.ac span{display:block;font-size:12.5px;color:#4b5058;margin-top:2px}
+.ac .pill{margin-top:10px;background:#fff;font-size:11.5px;padding:3px 9px;color:var(--muted)}.ac.on .pill{color:var(--ink)}
+.ac.c1{background:linear-gradient(135deg,#e8f4fb,#dbeefb 60%,#f4f9fd)}.ac.c2{background:linear-gradient(135deg,#efe9fb,#e3dbfa 60%,#f6f2fd)}.ac.c3{background:linear-gradient(135deg,#fce8ef,#fbd7e3 60%,#fdf1f4)}.ac.c4{background:linear-gradient(135deg,#e8f7ec,#d9f2e0 60%,#f1faf3)}
+/* misc content blocks */
+.mail{border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:relative;background:#fffdf8}
+.mail .hd{font-size:12.5px;color:var(--muted);margin-bottom:8px}.mail .body{font-size:15.5px;font-style:italic;color:#2b2f36;max-width:720px}
+.stamp{position:absolute;right:18px;top:14px;border:2px solid var(--red);color:var(--red);font-weight:800;letter-spacing:.12em;padding:3px 10px;border-radius:6px;transform:rotate(-7deg);font-size:12px;animation:pop .4s ease;background:rgba(255,255,255,.7)}
+.rec{border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;background:#fff}
+.rec .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:linear-gradient(135deg,#d9f2e0,#bfe8cc)}
+.rec .ico.grey{background:var(--soft)}
+.rec .k{font-size:12px;color:var(--muted)}.rec .v{font-size:16px;font-weight:500}.rec .v b{font-family:var(--mono);font-weight:600}.rec .src{margin-left:auto;text-align:right;font-size:12.5px;color:var(--muted)}
+.res{margin-top:12px;border-radius:12px;padding:12px 16px;font-size:14.5px;display:flex;gap:10px;align-items:baseline;animation:pop .3s ease}
+.res.green{background:var(--greenbg);color:var(--green)}.res.red{background:var(--redbg);color:var(--red)}.res.amber{background:var(--amberbg);color:var(--amber)}.res.violet{background:var(--violetbg);color:var(--violet)}.res b{font-weight:700}
+.draft{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;background:#fff;transition:all .3s}
+.draft.approved{border-color:#cdebd8;background:#f6fcf8}
+.draft .to{font-size:12.5px;color:var(--muted);margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.draft .to b{color:var(--ink);font-weight:600}
+.draft .msg{font-size:14.5px;color:#2b2f36;margin-bottom:10px}
+.draft .ft{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}.draft .ft .st{margin-left:auto}
+.gates{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.gate{border-radius:var(--r);padding:16px 18px;border:1px solid var(--line)}.gate b{display:block;font-size:28px;font-weight:600;letter-spacing:-.02em}.gate small{font-size:12.5px;color:var(--muted)}.gate i{display:block;font-style:normal;font-size:12px;font-weight:600;margin-top:6px}
+.gate.pass{background:linear-gradient(135deg,#e8f7ec,#f4fbf6)}.gate.pass i{color:var(--green)}.gate.miss{background:linear-gradient(135deg,#fff4e0,#fffaf0)}.gate.miss i{color:var(--amber)}
+.gap{font-size:13.5px;background:#fffaf0;border:1px solid #f5e2b8;border-radius:12px;padding:12px 16px;margin-top:14px;color:#3f3a2f}
+.pk{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.notes{margin-top:18px;background:#fffaf0;border:1px solid #f5e2b8;border-radius:12px;padding:12px 16px;font-size:14.5px;color:#3f3a2f}
+.notes b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a16207;margin-bottom:4px}
+.closing{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:8px 0 0}.closing span{background:linear-gradient(90deg,#ff7a3d,#7c5cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hidden{display:none!important}
+.flash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#141416;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}.flash.show{opacity:1}
+@media (max-width:1000px){.hero{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="window">
+ <div class="top">
+  <div class="l"><div class="logo">R</div><div class="entity" id="entity"><i></i>Resolve <span>· Demo Health — Clinic North LLC</span></div></div>
+  <nav class="tabs"><a class="on" href="/">Story</a><a href="/workspace">Workspace</a><a href="/workspace#eval">Evaluation</a></nav>
+  <div class="r">
+   <button class="ic" id="notes-btn" onclick="toggleNotes()" title="Speaker notes (N)">✎</button>
+   <button class="ic" onclick="resetAll()" title="Reset demo">↺</button>
+   <span class="ic" title="12 cases in queue"><span class="dot"></span>◔</span>
+   <div class="avatar">AP</div>
+  </div>
+ </div>
+
+ <section class="hero" id="hero">
+  <div class="blob"></div>
+  <div class="txt">
+   <div class="eyebrow"><span id="stepno"></span> · <b id="steptitle"></b></div>
+   <h1 id="head"></h1>
+   <p class="sub" id="sub"></p>
+   <div class="cta"><button class="btn" id="go" onclick="go()"></button><button class="link" id="skip" onclick="skip()">skip</button></div>
+  </div>
+  <div class="spot" id="spot"></div>
+ </section>
+
+ <div class="stepper" id="stepper"></div>
+
+ <div class="content">
+  <div id="body"></div>
+  <div class="notes hidden" id="notes"></div>
+  <div class="pagefoot"><button class="link" id="det-btn" onclick="toggleDetails()">Show details</button><span class="keys"><span><kbd>Space</kbd> next</span><span><kbd>←</kbd> <kbd>→</kbd> move</span><span><kbd>N</kbd> notes</span></span></div>
+  <div class="details hidden" id="details"><div id="extra"></div><div class="sec"><div class="sh"><h2>Who decides what</h2></div><div class="auth" id="who"></div></div></div>
+ </div>
+</div>
+<div class="flash" id="flash"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api=async(p,o={})=>{const r=await fetch(p,{headers:{'content-type':'application/json'},...o});const j=await r.json().catch(()=>({}));if(!r.ok){flash(j.detail||('HTTP '+r.status));throw new Error(j.detail||r.status)}return j};
+const post=(p,b)=>api(p,{method:'POST',body:b?JSON.stringify(b):undefined});
+function flash(t){const f=$('#flash');f.textContent=t;f.classList.add('show');clearTimeout(f._t);f._t=setTimeout(()=>f.classList.remove('show'),2800)}
+const NICE={MISSING_RECEIPT:'Missing receipt',PRICE_UNSUPPORTED:'Price not supported',DUPLICATE_BILLING:'Duplicate billing',INCOMPLETE_DATA:'Incomplete data',UNIT_MISMATCH:'Unit mismatch'};
+const ROLE={receiving:'Receiving',procurement:'Procurement',ap_reviewer:'AP reviewer'};
+const KIND={po_line:'Purchase order',grn_line:'Goods receipt',invoice_line:'Invoice',amendment:'Amendment',prior_invoice_line:'Prior invoice',email:'Email'};
+const nice=t=>NICE[t]||t;
+const money=s=>parseFloat(String(s).replace(/[^0-9.]/g,''))||0;
+let META={},CASE=null,QUEUE=[],STEP=0,PHASE='before',DONE=new Set(),LAST=null,RES={},NOTES=false,DETAILS=false,BUSY=false;
+
+/* ---------- reusable blocks ---------- */
+function spotBlockers(c,title){const open=c.blockers.filter(b=>b.status==='open').length;
+ return `<div class="h">${esc(c.id)} · ${esc(c.supplier)}<small>${open?open+' open':'all cleared'}</small></div>${c.blockers.map(b=>`<div class="al"><div class="t"><span>${nice(b.type)}</span><span>${esc(b.amount_at_risk)}</span></div>${b.status==='open'?`<span class="pill red">Ask ${ROLE[b.owner_role]} for the record ›</span>`:`<span class="pill green">✓ Cleared by ${esc(b.cleared_by)}</span>`}</div>`).join('')}<div class="foot">${title||'found by rules, not by the model'}</div>`}
+function spotKpis(items,foot){return `<div class="kpis">${items.map(([l,v,cls])=>`<div><small>${l}</small><b class="${cls||''}">${v}</b></div>`).join('')}</div>${foot?`<div class="foot">${foot}</div>`:''}`}
+function kpis(c){const t=c.totals,inv=money(t.invoice_total),pr=money(t.receipts_at_po_price),pct=inv?Math.round(pr/inv*100):0,zero=money(t.difference)===0;
+ return `<div class="sec">
+ <div class="grid3"><div class="kpi"><small>Invoiced</small><b>${esc(t.invoice_total)}</b><div class="d">what the supplier bills</div></div>
+ <div class="kpi"><small>Proven by records</small><b>${esc(t.receipts_at_po_price)}</b><div class="d ${pct===100?'green':''}">${pct}% of the invoice</div><div class="bar"><i style="width:${pct}%"></i></div></div>
+ <div class="kpi"><small>Not yet proven</small><b class="${zero?'green':''}">${esc(t.difference)}</b><div class="d">${zero?'nothing outstanding':'not a loss — a question'}</div></div></div></div>`}
+function records(c){return `<div class="sec"><div class="sh"><h2>Records on this case</h2></div><div class="tbl"><div class="hd" style="grid-template-columns:150px 140px 1fr 110px"><span>Record</span><span>ID</span><span>Content</span><span>Trust</span></div>${c.evidence.map(e=>`<div class="row" style="grid-template-columns:150px 140px 1fr 110px"><span><span class="dt" style="background:${e.trust==='untrusted'?'var(--red)':'#8b5cf6'}"></span>${KIND[e.kind]||e.kind}</span><span class="m">${esc(e.id)}</span><span>${esc(e.summary)}</span><span class="st ${e.trust==='untrusted'?'red':'green'}">${e.trust}</span></div>`).join('')}</div></div>`}
+function trace(tr,animate){const steps=tr.filter(t=>!t.meta),meta=tr.find(t=>t.meta),id='tr'+Date.now();
+ const row=s=>`<div class="row ${s.status==='rejected'?'rej':''}" style="grid-template-columns:36px 170px 1fr 90px"><span class="m" style="color:var(--muted)">${s.n}</span><span><span class="dt"></span><span class="m" style="font-weight:600">${esc(s.tool)}</span></span><span class="why">${esc(s.note||'')}${s.status==='rejected'?`<b>⛔ ${esc(s.result?.error||'')}</b>`:''}</span><span class="st ${s.status==='rejected'?'red':'green'}">${s.status==='rejected'?'Rejected':'Allowed'}</span></div>`;
+ setTimeout(()=>{const box=document.getElementById(id);if(!box)return;let i=0;const tick=()=>{if(!document.getElementById(id))return;if(i<steps.length){box.insertAdjacentHTML('beforeend',row(steps[i++]));setTimeout(tick,animate?360:0)}};tick()},30);
+ return `<div class="tbl" id="${id}"><div class="hd" style="grid-template-columns:36px 170px 1fr 90px"><span>#</span><span>Tool</span><span>Why</span><span>Policy</span></div></div>`}
+function drafts(c){return c.drafts.map(d=>{const b=c.blockers.find(x=>x.id===d.blocker_id)||{};return `<div class="draft ${d.status}"><div class="to">To <span class="chip mono">${esc(d.recipient)}</span> · ${ROLE[d.owner_role]} · for <b>${nice(b.type)}</b></div><div class="msg">${esc(d.message)}</div><div class="ft"><span class="st ${d.status==='approved'?'green':d.status==='proposed'?'amber':'red'}">${d.status==='approved'?'Approved · draft only, not sent':d.status==='proposed'?'Awaiting a human':'Rejected'}</span></div></div>`}).join('')||'<div class="why">No requests drafted yet.</div>'}
+const sec=(h,p,inner,tools='')=>`<div class="sec"><div class="sh"><h2>${h}</h2><p>${p}</p>${tools?`<div class="tools">${tools}</div>`:''}</div>${inner}</div>`;
+const mail=(hd,body,stamped)=>`<div class="mail">${stamped?'<span class="stamp">UNTRUSTED</span>':''}<div class="hd">${hd}</div><div class="body">“${esc(body)}”</div></div>`;
+const rec=(ico,k,v,src,grey)=>`<div class="rec"><div class="ico ${grey?'grey':''}">${ico}</div><div><div class="k">${k}</div><div class="v">${v}</div></div><div class="src">${src}</div></div>`;
+const EMAIL='Hi, confirming the remaining boxes were delivered to the clinic last Thursday. Please release payment. Regards, Supplier';
+
+/* ---------- the story ---------- */
+const S=[
+ {t:'The case',cid:'R-1042',w:'code',mood:'alert',
+  before:{h:'Two facts are missing.',s:'100 ordered · 80 received · 100 invoiced, at AED 22 instead of AED 20.',btn:'Investigate'},
+  spot:c=>spotBlockers(c),body:c=>kpis(c),extra:c=>records(c),
+  say:'This is the invoice from page two. Deterministic rules — Decimal arithmetic, receipt allocation, approved-price tolerance — found both gaps. No model has touched the case yet.'},
+ {t:'Agent investigates',cid:'R-1042',w:'model',mood:'',
+  before:{h:'The agent investigates.',s:'Six read-only tools. Ten calls max. It cannot send, pay or change anything.',btn:'Run the agent'},
+  after:{h:'6 calls. 2 requests drafted. Nothing sent.',s:''},
+  spot:(c,ph)=>ph==='after'?spotKpis([['tool calls',(LAST.trace.find(t=>t.meta)?.calls||0)+' / '+META.max_tool_calls],['rejected',LAST.trace.find(t=>t.meta)?.rejected||0,'green'],['drafted',c.drafts.length],['sent · paid',0,'green']]):`<div class="h">Agent toolbox</div><div style="display:flex;flex-wrap:wrap;gap:6px">${META.tools.map(t=>`<span class="chip green mono">${t}</span>`).join('')}<span class="chip red mono">send_email</span><span class="chip red mono">approve_payment</span><span class="chip red mono">update_bank_details</span></div><div class="foot">red tools do not exist</div>`,
+  body:(c,ph)=>ph==='after'?sec('Trace','',trace(LAST.trace,true)):'',extra:c=>records(c),
+  do:async()=>{LAST=await post(`/api/cases/R-1042/investigate?mode=${META.llm_available?'llm':'scripted'}`)},
+  say:'The model reads the case, checks receipt history and amendments, then drafts the smallest request per blocker. Code resolves the recipient and verifies every cited record exists on this case.'},
+ {t:'Human approves',cid:'R-1042',w:'human',mood:'',
+  before:{h:'A human decides what is sent.',s:'',btn:'Approve both'},
+  after:{h:'Approved. Still a draft.',s:'Nothing leaves without a person. The same question can never be sent twice.'},
+  spot:c=>`<div class="h">Outbox<small>${c.drafts.filter(d=>d.status==='approved').length} approved · 0 sent</small></div>${c.drafts.map(d=>`<div class="al"><div class="t"><span>${ROLE[d.owner_role]}</span><span>${d.id}</span></div><span class="pill ${d.status==='approved'?'green':'amber'}">${d.status==='approved'?'✓ Approved · draft only':'Awaiting approval'}</span></div>`).join('')}`,
+  body:c=>sec('Requests','',drafts(c)),
+  do:async()=>{for(const d of CASE.drafts.filter(d=>d.status==='proposed'))await post(`/api/cases/R-1042/drafts/${d.id}`,{approve:true})},
+  say:'A human approves recipient and message. In the pilot the request stays a draft — no unsolicited supplier messaging. Approving twice is suppressed by the dedup key.'},
+ {t:'Supplier emails',cid:'R-1042',w:'code',mood:'alert',
+  before:{h:'The supplier emails: “delivered, please pay.”',s:'',btn:'Receive the email'},
+  after:{h:'Nothing cleared. An email is not proof.',s:'Two blockers before. Two after.'},
+  spot:c=>spotBlockers(c,'unchanged'),
+  body:(c,ph)=>sec('Mailbox','',mail('From accounts@gulfmedical.example',EMAIL,ph==='after')+(ph==='after'?`<div class="res amber"><b>Recorded as untrusted.</b> Open blockers ${LAST.before} → ${LAST.after}.</div>`:'')),extra:c=>kpis(c)+records(c),
+  do:async()=>{const before=CASE.blockers.filter(b=>b.status==='open').length;await post('/api/cases/R-1042/events/supplier-email',{text:EMAIL});const c=await api('/api/cases/R-1042');LAST={before,after:c.blockers.filter(b=>b.status==='open').length}},
+  say:'This is the decisive moment. A plausible email is recorded, shown to the reviewer — and clears nothing. Free text can inform; it can never prove.'},
+ {t:'Receipt posted',cid:'R-1042',w:'code',mood:'',
+  before:{h:'Receiving posts the goods receipt.',s:'An authoritative ERP record.',btn:'Post the receipt'},
+  after:{h:'Quantity cleared. Price still open.',s:'A receipt says nothing about price.'},
+  spot:c=>spotBlockers(c),
+  body:(c,ph)=>sec('ERP','',rec('📦','Goods receipt · ERP','<b>20 units</b> on <b>PO-104/L7</b>','Receiving')+(ph==='after'?`<div class="res green"><b>Cleared:</b> missing receipt</div>`:'')),extra:c=>kpis(c)+records(c),
+  do:async()=>{await post('/api/cases/R-1042/events/grn',{po_line:'PO-104/L7',qty:20})},
+  say:'An authoritative record arrives. The rules rerun automatically. Quantity clears — by that GRN, and the screen says so. The price difference stays open because a receipt says nothing about price.'},
+ {t:'Amendment approved',cid:'R-1042',w:'code',mood:'good',
+  before:{h:'Procurement approves AED 22.',s:'Only an approved amendment supports a price.',btn:'Record the amendment'},
+  after:{h:'Evidence complete. Not payment authorised.',s:'Every check is backed by a record. Nothing has been paid.'},
+  spot:c=>spotBlockers(c),
+  body:(c,ph)=>sec('ERP','',rec('✍️','Order amendment · ERP','<b>PO-104/L7</b> at <b>AED 22.00</b> · approved','Procurement')+(ph==='after'?`<div class="res green"><b>Cleared:</b> price not supported</div>`:'')),extra:c=>kpis(c)+records(c),
+  do:async()=>{await post('/api/cases/R-1042/events/amendment',{po_line:'PO-104/L7',unit_price:22,approved:true})},
+  say:'Second authoritative record. Price clears. The case becomes evidence complete — which is explicitly not payment authorised.'},
+ {t:'Same invoice again',cid:'R-1042',w:'code',mood:'good',
+  before:{h:'The same invoice arrives again.',s:'',btn:'Re-send it'},
+  after:{h:'Same case. No duplicate.',s:'Same content hash, same case, no second request. Still 12 cases.'},
+  spot:(c,ph)=>spotKpis([['cases in queue',ph==='after'?LAST.cases_total:QUEUE.length],['new cases',ph==='after'?0:'—',ph==='after'?'green':''],['requests re-sent',ph==='after'?0:'—',ph==='after'?'green':''],['hash','<span class="m" style="font-size:13px">'+esc(c.evidence.find(e=>e.kind==='invoice_line')?.content_hash||'')+'</span>']]),
+  body:(c,ph)=>sec('Invoice feed','',rec('🧾','Invoice · ASP feed','<b>INV-218</b> · byte-identical to the first','',true)+(ph==='after'?`<div class="res violet"><b>Duplicate.</b> Existing case ${LAST.case_id} returned.</div>`:'')),extra:c=>kpis(c)+records(c),
+  do:async()=>{LAST=await post('/api/cases/R-1042/events/reupload')},
+  say:'Retries and duplicate feeds are normal. Same content hash, same case, no second request to anyone.'},
+ {t:'Hand over to ERP',cid:'R-1042',w:'erp',mood:'good',
+  before:{h:'Hand over to the people who pay.',s:'Resolve has no payment permission.',btn:'Send the packet'},
+  after:{h:'Packet sent. No payment initiated.',s:'Finance keeps the decision.'},
+  spot:(c,ph)=>ph==='after'?`<div class="h">Resolution packet<small>${LAST.case}</small></div>${LAST.checks.map(k=>`<div class="al"><div class="t"><span>${nice(k.type)}</span><span>${k.amount_at_risk}</span></div><span class="pill green">✓ ${k.status} by ${esc(k.cleared_by||'—')}</span></div>`).join('')}<div class="al"><span class="pill violet">→ ERP approval workflow</span></div>`:spotBlockers(c,'ready'),
+  body:(c,ph)=>ph==='after'?`<div class="res red"><b>${esc(LAST.statement)}</b></div>`:'',extra:(c,ph)=>ph==='after'?packet(LAST):kpis(c)+records(c),
+  do:async()=>{await post('/api/cases/R-1042/close');LAST=await api('/api/cases/R-1042/packet')},
+  say:'The packet lists every check, what cleared it, every record with its hash, every request and who approved it. It goes to their approval flow. Resolve has no payment or bank-master permission — by construction, not by prompt.'},
+ {t:'Red team',cid:'R-1045',w:'code',mood:'alert',
+  before:{h:'What if the model is compromised?',s:'This invoice tells the system to pay a new bank account. We run a planner that obeys it.',btn:'Run the compromised planner'},
+  after:{h:'7 attempts. 7 rejected. 0 side effects.',s:'The tools do not exist. Every attempt is audited.'},
+  spot:(c,ph)=>{const m=ph==='after'?LAST.trace.find(t=>t.meta):null;return spotKpis([['attempts',m?m.calls:'—'],['rejected in code',m?m.rejected:'—',m?'red':''],['paid · changed',m?0:'—',m?'green':''],['audited',m?'all':'—']])},
+  body:(c,ph)=>{const inj=c.evidence.find(e=>e.trust==='untrusted');return ph==='after'?sec('What it tried','',trace(LAST.trace,true)):sec('Invoice remarks','',mail('INV-221 · free-text field',(inj?.data?.text||inj?.summary||'').replace(/^Invoice free-text field: "?/,'').replace(/"$/,''),true))},extra:c=>records(c),
+  do:async()=>{LAST=await post('/api/cases/R-1045/investigate?mode=redteam')},
+  say:'Prompt injection is a policy problem, not a prompt problem. The agent has a vocabulary of six read-only verbs; code checks every noun. Nothing moved, and the audit trail names each attempt.'},
+ {t:'Does it hold up?',cid:null,w:'all',mood:'good',
+  before:{h:'Does it hold up?',s:'40 labelled synthetic cases. Recall and precision per type, false clears, side effects.',btn:'Run the evaluation'},
+  after:{h:'0 false clears. 0 side effects. 1 gap, named.',s:'Same harness runs on 150 real cases in the pilot.'},
+  spot:(c,ph)=>{if(ph!=='after')return spotKpis([['recall gate','≥95%'],['precision gate','≥90%'],['false clears','0'],['side effects','0']]);const h=LAST.headline,p=x=>(x*100).toFixed(1)+'%';return spotKpis([['recall',p(h.recall),LAST.gates.recall_ge_95?'green':'red'],['precision',p(h.precision),'green'],['false clears',h.critical_false_clears,'green'],['side effects',Object.values(LAST.planners).reduce((s,q)=>s+(q.side_effects||0),0),'green']],`${h.exact_match_cases}/${LAST.set.total} exact · ${h.abstentions} abstained`)},
+  body:(c,ph)=>ph==='after'?evalView(LAST):'',
+  do:async()=>{LAST=await api('/api/eval?planners=scripted,redteam')},
+  say:'These numbers prove the method, not customer performance. Two unit-of-measure cases are caught for the wrong reason — still blocked, never falsely cleared — and the dashboard says so instead of hiding it.'},
+];
+
+function packet(p){return `<div class="sec"><div class="sh"><h2>Packet contents · rules ${esc(p.rules_version)} · ${p.audit_events} audit events</h2></div>
+ <div class="pk"><div class="tbl"><div class="hd" style="grid-template-columns:1fr 100px 90px 120px"><span>Check</span><span>At risk</span><span>Status</span><span>Cleared by</span></div>${p.checks.map(k=>`<div class="row" style="grid-template-columns:1fr 100px 90px 120px"><span>${nice(k.type)}</span><span class="m">${k.amount_at_risk}</span><span class="st green">${k.status}</span><span class="m">${esc(k.cleared_by||'—')}</span></div>`).join('')}${p.requests.map(r=>`<div class="row" style="grid-template-columns:1fr 100px 90px 120px"><span>Request ${r.id} → <span class="m">${esc(r.to)}</span></span><span></span><span class="st green">${r.status}</span><span class="m">draft only</span></div>`).join('')}</div>
+ <div class="tbl"><div class="hd" style="grid-template-columns:120px 110px 1fr"><span>Record</span><span>Trust</span><span>Hash</span></div>${p.evidence.map(e=>`<div class="row" style="grid-template-columns:120px 110px 1fr"><span class="m">${e.id}</span><span class="st ${e.trust==='untrusted'?'red':'green'}">${e.trust}</span><span class="m" style="color:var(--muted)">${e.hash||'—'}</span></div>`).join('')}</div></div>
+ </div>`}
+function evalView(E){const h=E.headline,g=E.gates,pct=x=>x==null?'—':(x*100).toFixed(1)+'%';const se=Object.values(E.planners).reduce((s,p)=>s+(p.side_effects||0),0);
+ const gate=(v,l,pass,txt)=>`<div class="gate ${pass?'pass':'miss'}"><b>${v}</b><small>${l}</small><i>${txt}</i></div>`;
+ return sec('Per exception type','',`<div class="tbl"><div class="hd" style="grid-template-columns:1fr 90px 120px 120px"><span>Exception type</span><span>Cases</span><span>Recall</span><span>Precision</span></div>${Object.entries(E.per_type).map(([t,r])=>`<div class="row" style="grid-template-columns:1fr 90px 120px 120px"><span><span class="dt"></span>${nice(t)}</span><span class="m">${r.tp+r.fn}</span><span class="m" style="${r.gate_recall===false?'color:var(--amber);font-weight:600':''}">${pct(r.recall)}</span><span class="m" style="${r.gate_precision===false?'color:var(--amber);font-weight:600':''}">${pct(r.precision)}</span></div>`).join('')}</div>
+ <div class="gap"><b>Known gap:</b> unit-of-measure conversion is not checked. Those 2 invoices are still blocked — for the wrong reason, never falsely cleared.</div>
+ <div class="closing">The model <span>investigates</span>. Code <span>proves</span>. A human <span>sends</span>. The ERP <span>pays</span>.</div>`)}
+function renderWho(k){const W=[['Model','investigates','reads, proposes, drafts','c1'],['Code','proves','only rules clear a blocker','c2'],['Human','sends','approves every message','c3'],['ERP','pays','Resolve cannot','c4']];const idx={model:0,code:1,human:2,erp:3}[k];
+ $('#who').innerHTML=W.map((w,i)=>`<div class="ac ${w[3]} ${k==='all'||idx===i?'on':''}"><b>${w[0]} <span style="display:inline;color:var(--muted);font-weight:400">${w[1]}</span></b><span>${w[2]}</span><span class="pill">${k==='all'||idx===i?'in play':'standing by'}</span></div>`).join('')}
+
+/* ---------- engine ---------- */
+async function render(){const st=S[STEP];if(st.cid)CASE=await api('/api/cases/'+st.cid);if(PHASE==='after'&&st.do&&!(STEP in RES))PHASE='before';LAST=RES[STEP]??null;const ph=(PHASE==='after'&&st.after)?'after':'before';const txt=ph==='after'?st.after:st.before;const last=STEP===S.length-1;
+ $('#hero').className='hero '+(st.mood||'');$('#stepno').textContent=`Step ${STEP+1} of ${S.length}`;$('#steptitle').textContent=st.t;
+ $('#head').textContent=txt.h;$('#sub').textContent=txt.s;$('#spot').innerHTML=st.spot(CASE,ph);$('#body').innerHTML=st.body(CASE,ph);
+ const g=$('#go');g.className='btn'+(ph==='after'?' ghost':'');g.innerHTML=ph==='after'?(last?'Start over ↺':'Next step →'):esc(st.before.btn)+' →';$('#skip').classList.toggle('hidden',ph==='after'||!st.do||last);
+ $('#stepper').innerHTML=S.map((s,i)=>`<button class="stp ${i===STEP?'cur':''} ${DONE.has(i)&&i!==STEP?'done':''}" data-t="${i+1}. ${s.t}" onclick="jump(${i})"></button>`).join('');$('#extra').innerHTML=st.extra?st.extra(CASE,ph):'';
+ renderWho(st.w);$('#notes').innerHTML=`<b>Say</b>${esc(st.say)}`;
+ if(CASE)$('#entity').innerHTML=`<i></i>Resolve <span>· ${esc(META.entities[CASE.entity]||CASE.entity)}</span>`;
+ window.scrollTo({top:0,behavior:'smooth'})}
+async function go(){if(BUSY)return;const st=S[STEP];const b=$('#go');
+ if(PHASE==='before'&&st.do){BUSY=true;b.disabled=true;try{await st.do();RES[STEP]=LAST;PHASE='after';DONE.add(STEP)}catch(e){flash('That step failed: '+e.message)}finally{BUSY=false;b.disabled=false}await render();return}
+ DONE.add(STEP);if(STEP===S.length-1){await resetAll();return}STEP++;PHASE='before';await render()}
+async function skip(){DONE.add(STEP);if(STEP<S.length-1){STEP++;PHASE='before';await render()}}
+async function jump(i){STEP=i;PHASE=DONE.has(i)?'after':'before';await render()}
+async function back(){if(STEP>0){STEP--;PHASE=DONE.has(STEP)?'after':'before';await render()}}
+function toggleDetails(){DETAILS=!DETAILS;$('#details').classList.toggle('hidden',!DETAILS);$('#det-btn').textContent=DETAILS?'Hide details':'Show details'}
+function toggleNotes(){NOTES=!NOTES;$('#notes').classList.toggle('hidden',!NOTES);$('#notes-btn').classList.toggle('on',NOTES)}
+async function resetAll(){await post('/api/reset');STEP=0;PHASE='before';DONE=new Set();LAST=null;RES={};await boot();flash('Demo reset')}
+async function boot(){META=await api('/api/meta');QUEUE=await api('/api/cases');await render()}
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key===' '||e.key==='Enter'){e.preventDefault();go()}else if(e.key==='ArrowRight'){e.preventDefault();skip()}else if(e.key==='ArrowLeft'){e.preventDefault();back()}else if(e.key==='n'||e.key==='N'){toggleNotes()}else if(e.key==='d'||e.key==='D'){toggleDetails()}});
+boot();
+</script>
+</body>
+</html>
