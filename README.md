@@ -1,18 +1,4 @@
-# Resolve
-
-## Creator license renewal pilot
-
-A new, separate creator workspace tracks time-limited UGC usage licenses, renewal offers, written approval and creator-reported payments. It includes private accounts, persistent SQLite storage, a sample workspace, evidence exports and optional Stripe-hosted subscription billing.
-
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/python -m uvicorn app.creator:app --port 8000
-```
-
-Open `http://localhost:8000`. The free workspace works without external credentials. Read the [creator pilot runbook](docs/CREATOR-PILOT.md) for checks, billing setup, limitations and paid-validation gates. This is a pilot foundation; neither public production readiness nor willingness to pay for Resolve has been established.
-
-## Original accounts-payable demo
+# Resolve — working demo
 
 A deliberately small, fully working implementation of the "missing-evidence layer" for accounts payable
 described in the Challenge 07 response. **Synthetic records only. Nothing is sent, nothing is paid.**
