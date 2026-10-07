@@ -10,9 +10,9 @@ def setup_function():
     store.seed()
 
 
-def test_queue_has_twelve_cases_with_metadata_and_both_entities():
+def test_queue_has_thirteen_cases_with_metadata_and_both_entities():
     q = c.get("/api/cases").json()
-    assert len(q) == 12
+    assert len(q) == 13
     assert {x["entity"] for x in q} == {"clinic-north", "clinic-west"}
     assert all({"ageing_days", "invoice_total", "blocker_types", "status", "supplier"} <= set(x) for x in q)
     assert {x["status"] for x in q} == {"open", "evidence_complete"}
@@ -87,7 +87,7 @@ def test_live_ingest_links_erp_records_and_is_idempotent():
     assert any(e["id"] == "PO-215/L1" for e in case["evidence"])           # linked by entity + PO line
     r2 = c.post("/api/ingest", json=body).json()
     assert r2["created"] is False and r2["case"]["id"] == case["id"]
-    assert len(c.get("/api/cases").json()) == 13
+    assert len(c.get("/api/cases").json()) == 14
 
 
 def test_live_ingest_remarks_are_untrusted():

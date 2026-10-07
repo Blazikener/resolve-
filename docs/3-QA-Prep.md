@@ -20,6 +20,19 @@ Don't say: "they don't do X" — you can't know from a website. Say "they do it 
 **4. Isn't this just a rules engine with an LLM writing emails?**
 > The rules engine is the *safety* half, deliberately. The AI half is the investigation: which records to pull, which amendment is relevant, what the smallest request is, in what words, to whom. On a two-blocker case a template does that fine — I've shipped that as the scripted baseline in the demo. On a real queue with returns, credits, partial deliveries across three GRNs and a supplier who invoices in cartons instead of boxes, the investigation is where the hours go. That's where the model has to beat the baseline, and I've built it so that comparison is one config flag.
 
+**4a. Freehand just raised $75M to do this. Why would anyone fund Resolve?**
+> Freehand proves the category; it doesn't close it. They started in US freight, and their promise is "AI takes responsibility" — agents that close disputes on their own. A Gulf controller under a new e-invoicing regime wants the opposite: the AI proves, the controller decides, and the system makes payment impossible for the agent. Different buyer, different trust model, different rails (PINT AE, UAE ASPs). If Freehand comes to the GCC, they need a local, compliance-native partner — the MD 64/2025 amendment makes that the expected path. Either way, Resolve is the asset.
+
+Don't say: "they're US-only" as a weakness. Say where you sit.
+
+**4b. The UAE ASPs will add this, won't they?**
+> There are 61 accredited ASPs and their job is moving a valid invoice and reporting it to the FTA, inside a 62-day integration window. None of them want to chase a clinic's receiving clerk. Resolution sits after their job ends — which makes them a channel. A resolution add-on they can resell is revenue for them, not competition.
+
+**4c. What exactly is the PINT AE credit-note point?**
+> PINT AE covers three outcomes for an invoice: full approval, full rejection, and partial dispute. A partial dispute ends in a credit note (and, if needed, a new invoice). The credit note's reason code, BTAE-03, is mandatory and comes from a fixed list. Resolve computes the lines and amount in code and *proposes* the code. For price or short delivery that's most likely DL8.61.1.C, "consideration altered", but a tax advisor confirms it. Then it checks the supplier's credit note against the request.
+
+Don't say: "Resolve files credit notes." The supplier issues them; Resolve requests and verifies.
+
 ---
 
 ## B. Market and go-to-market (product thinking / problem solving)
@@ -100,7 +113,10 @@ Don't say: "healthcare because it's regulated" — that invites a compliance con
 | Page-two case | 100 × AED 20 ordered; 80 received; 100 × AED 22 invoiced; AED 2,200 / 1,600 / 600; after GRN: 200 |
 | E-invoicing | ≥ AED 50M revenue; ASP by 30 Oct 2026; go-live 1 Jan 2027 (FTA Decision 244/2025 as amended by 66/2026) |
 | Eval | 150 cases (50 dev / 100 holdout) + 30 adversarial; ≥95% recall, ≥90% precision, 0 critical false clears, 0 unauthorised side effects; ≥50% less investigation time |
-| Economics | 6,000 inv/mo × 25% × 12 min = 300 h ≈ AED 22,500/mo capacity at AED 75/h; test price AED 6,000/mo + onboarding fee |
+| Economics | 6,000 inv/mo × 18.4% × 12 min ≈ 220 h ≈ AED 16,500/mo capacity at AED 75/h (all but the rate are assumptions); test price AED 6,000/mo + onboarding fee |
+| Market facts | ~2 in 5 UAE B2B invoices settled late (Atradius 2026); 18.4% avg exception rate, $9.84/invoice, 8.2 days (Ardent, Jan 2026); Freehand $75M seed (29 Jul 2026); 61 accredited ASPs + 5 pre-approved (MoF register, 5 Oct 2026, via finline) |
+| Credit note | PINT AE partial dispute → credit note; BTAE-03 mandatory; codes DL8.61.1.A–E, VD; R-1054 = AED 630 (480 + 150), DL8.61.1.C proposed |
+| Fikra language | "constrained by construction vs by declaration" (Company as Colony); Prism56: "judgment stays with the investor", "every line traced back to its source" |
 | Demo | 8 tests; 6 tools; call budget 8; 0.5% price tolerance; four cases R-1042 / 43 / 44 / 45 |
 | Stack | Python/FastAPI, Postgres, React UI, one structured-output model, no fine-tune, no vector DB |
 

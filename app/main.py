@@ -1,10 +1,10 @@
 """HTTP surface for the reviewer screen. Thin: every route calls one function in store/agent/policy."""
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from .models import Evidence
-from . import store, agent, evaluation
+from . import store, agent, evaluation, einvoice
 
 app = FastAPI(title="Resolve demo")
 STATIC = Path(__file__).resolve().parent.parent / "static"
@@ -128,6 +128,71 @@ def post_amendment(case_id: str, body: AmendmentPost):
     return case_detail(case_id)
 
 
+class CreditRequestApproval(BaseModel):
+    approved_by: str = "ap.reviewer"
+
+
+@app.get("/api/cases/{case_id}/credit-note-request")
+def credit_note_request_preview(case_id: str):
+    case = get_case(case_id)
+    try:
+        return einvoice.build_credit_request(case, list(store.CASES.values()))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+
+
+@app.post("/api/cases/{case_id}/credit-note-request")
+def approve_credit_note_request(case_id: str, body: CreditRequestApproval = CreditRequestApproval()):
+    case = get_case(case_id)
+    try:
+        preview = einvoice.build_credit_request(case, list(store.CASES.values()))
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+    if case.credit_request and case.credit_request.get("total_raw") == preview["total_raw"]:
+        store.audit(case, "reviewer", "credit_note.request.duplicate",
+                    f"existing request for {preview['total']} retained")
+        return case.credit_request
+    case.credit_request = preview | {"status": "approved_for_supplier", "approved_by": body.approved_by}
+    store.audit(case, "reviewer", "credit_note.request.approved",
+                f"{case.credit_request['total']} approved for supplier")
+    return case.credit_request
+
+
+class CreditNoteLine(BaseModel):
+    po_line: str
+    qty: float
+    unit_price: float
+
+
+class CreditNotePost(BaseModel):
+    credit_note_id: str = "CN-501"
+    reason_code: str
+    preceding_invoice: str
+    supplier: str | None = None
+    entity: str | None = None
+    lines: list[CreditNoteLine]
+
+
+@app.post("/api/cases/{case_id}/events/credit-note")
+def post_credit_note(case_id: str, body: CreditNotePost):
+    case = get_case(case_id)
+    if any(e.kind == "credit_note_line" and e.id.startswith(f"{body.credit_note_id}/") for e in case.evidence):
+        store.audit(case, "feed", "credit_note.duplicate", f"{body.credit_note_id} already recorded")
+        return case_detail(case_id)
+    payload = body.model_dump()
+    errors = einvoice.validate_credit_note(case, payload)
+    if errors:
+        store.audit(case, "policy", "credit_note.rejected", "; ".join(errors))
+        return JSONResponse(status_code=422, content={"errors": errors})
+    evidence = store.erp_credit_note(case.entity, body.credit_note_id, body.preceding_invoice,
+                                     body.reason_code, [line.model_dump() for line in body.lines])
+    for ev in evidence:
+        case.evidence.append(ev)
+        store.audit(case, "feed", f"evidence.{ev.kind}", f"{ev.id} [{ev.trust}]: {ev.summary}")
+    store.recheck(case, cleared_by=evidence[0].id, actor="feed")
+    return case_detail(case_id)
+
+
 @app.post("/api/cases/{case_id}/events/reupload")
 def reupload(case_id: str):
     """Same invoice arrives again (retry, second scan, duplicate feed). Must NOT create a second case."""
@@ -181,7 +246,7 @@ def packet(case_id: str):
     return {
         "case": case.id, "entity": case.entity, "entity_name": store.ENTITY_NAMES[case.entity], "supplier": case.supplier,
         "invoice": case.invoice_id, "po": case.po_id, "status": case.status, "rules_version": store.RULES_VERSION,
-        "totals": case.totals,
+        "totals": case.totals, "credit_request": case.credit_request,
         "checks": [{"blocker": b.id, "type": b.type, "status": b.status, "cleared_by": b.cleared_by, "owner": b.owner_role,
                     "amount_at_risk": b.amount_at_risk, "evidence": b.evidence_ids} for b in case.blockers],
         "evidence": [{"id": e.id, "kind": e.kind, "trust": e.trust, "source": e.source, "version": e.version,

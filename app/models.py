@@ -16,7 +16,8 @@ OwnerRole = Literal["receiving", "procurement", "ap_reviewer"]
 class Evidence:
     """One immutable fact we hold about a case. Every claim the system makes must point at one of these."""
     id: str                 # e.g. "PO-104/L7", "GRN-88/L3", "INV-218/L1", "AMD-12", "EMAIL-1"
-    kind: Literal["po_line", "grn_line", "invoice_line", "amendment", "email", "prior_invoice_line"]
+    kind: Literal["po_line", "grn_line", "invoice_line", "amendment", "email", "prior_invoice_line",
+                  "credit_note_line"]
     entity: str             # legal entity the record belongs to (tenant boundary)
     trust: Trust
     summary: str            # human-readable "what the record says"
@@ -79,6 +80,7 @@ class Case:
     agent_trace: list[dict] = field(default_factory=list)
     totals: dict = field(default_factory=dict)
     packet: Optional[dict] = None
+    credit_request: Optional[dict] = None
 
     def to_dict(self) -> dict:
         return asdict(self)

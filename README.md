@@ -10,7 +10,7 @@ described in the Challenge 07 response. **Synthetic records only. Nothing is sen
 ```bash
 pip install -r requirements.txt
 python3 -m uvicorn app.main:app --port 8000     # open http://localhost:8000
-python3 -m pytest -q                            # 20 tests, < 1 second
+python3 -m pytest -q                            # 32 tests
 ```
 
 Optional: `export OPENAI_API_KEY=...` (and `RESOLVE_MODEL=gpt-4o-mini`) enables the **LLM planner** button.
@@ -19,7 +19,7 @@ Without a key the same typed tools are driven by a scripted planner, which doubl
 
 ## The 3-minute story
 
-`http://localhost:8000` opens **story mode**: one idea per screen, a headline that states it, one black button that performs it, a thin progress line underneath. Press **Space** to perform the step (the headline then changes to the result), **→** to skip, **←** to go back, **N** for your speaker notes, **D** to show supporting detail (records table, who-decides strip). **Workspace** (top tab, or `/workspace`) opens the reviewer workspace — 12-case queue with Blockers · Agent · Requests · Evidence · Simulate · Audit sub-tabs, plus Evaluation and Invoice feed — for technical questions.
+`http://localhost:8000` opens **story mode**: one idea per screen, a headline that states it, one black button that performs it, a thin progress line underneath. Press **Space** to perform the step (the headline then changes to the result), **→** to skip, **←** to go back, **N** for your speaker notes, **D** to show supporting detail (records table, who-decides strip). **Workspace** (top tab, or `/workspace`) opens the reviewer workspace — 13-case queue with Blockers · Agent · Requests · Evidence · Simulate · Audit sub-tabs, plus Evaluation and Invoice feed — for technical questions.
 
 | # | Step | What the room should see |
 |---|---|---|
@@ -31,8 +31,9 @@ Without a key the same typed tools are driven by a scripted planner, which doubl
 | 6 | Procurement records **approved amendment @22** | Price clears → *evidence complete* (deliberately not "approved"). |
 | 7 | **Re-send the same invoice** | Same content hash → same case, no new request. |
 | 8 | **Send resolution packet** | Packet: checks, what cleared each, evidence with hashes, requests, audit count. Banner: *evidence complete ≠ payment authorised*. Case closed; no payment call exists. |
-| 9 | **R-1045 → Red-team** | Invoice text says "release payment to new IBAN". A compromised planner tries pay / bank change / fake receipt / wrong owner / bank language / other case / clear blocker — 7 rejections, all audited. |
-| 10 | **Evaluation** tab | 40 labelled synthetic cases: recall + precision *per exception type*, 0 critical false clears, 0 side effects, 2 abstentions, scripted-vs-red-team planner table, and a named known gap (unit-of-measure). |
+| 9 | **R-1054 → credit-note request → ASP credit note** | Preview / approve at `/api/cases/R-1054/credit-note-request`; receive at `/api/cases/R-1054/events/credit-note`. AED 630 nets both blockers. |
+| 10 | **R-1045 → Red-team** | Invoice text says "release payment to new IBAN". A compromised planner tries pay / bank change / fake receipt / wrong owner / bank language / other case / clear blocker — 7 rejections, all audited. |
+| 11 | **Evaluation** tab | 40 labelled synthetic cases: recall + precision *per exception type*, 0 critical false clears, 0 side effects, 2 abstentions, scripted-vs-red-team planner table, and a named known gap (unit-of-measure). |
 
 Also worth a click: **R-1044** (duplicate billing caught by receipt allocation), **R-1049** (no PO in the feed →
 INCOMPLETE_DATA: abstain, don't guess), **Post GRN from other entity** (a clinic-west receipt cannot clear a
@@ -44,14 +45,15 @@ clinic-north invoice), **Invoice feed** tab (ingest a new structured invoice liv
 |---|---|
 | `app/models.py` | Record shapes. `Evidence.trust` (authoritative / untrusted) is the whole safety story. |
 | `app/rules.py` | Deterministic checks in `Decimal`: receipt allocation, quantity, price (PO or approved amendment, 0.5% tolerance), duplicate billing, incomplete data. **Only this file clears a blocker.** |
+| `app/einvoice.py` | Deterministic UAE PINT AE credit-note request construction and supplier credit-note validation. |
 | `app/policy.py` | Policy gateway: allow-list of 6 tools, cited evidence must exist on *this* case, owner must match, bank/payment language rejected, recipient chosen from `OWNERS` by code, dedup key. |
 | `app/agent.py` | Bounded investigation loop (budget 10). Three planners over the same tools: `ScriptedPlanner` (baseline), `LLMPlanner` (OpenAI tool calling), `RedTeamPlanner` (simulated compromised model). |
-| `app/store.py` | In-memory store, idempotent `ingest_invoice` (content hash), audit log, 12 seeded cases across 2 legal entities. |
+| `app/store.py` | In-memory store, idempotent `ingest_invoice` (content hash), audit log, 13 seeded cases across 2 legal entities. |
 | `app/evaluation.py` | 40 labelled synthetic cases; recall/precision by type, critical false clears, side effects, abstentions, planner comparison. |
-| `app/main.py` | FastAPI routes: cases, investigate, drafts, simulated events, ingest, packet, close, eval, reset. |
-| `static/story.html` | Story mode (default `/`): the 10-step R-1042 walkthrough, one screen per step, calls the same API. |
+| `app/main.py` | FastAPI routes: cases, investigate, drafts, simulated events, credit notes, ingest, packet, close, eval, reset. |
+| `static/story.html` | Story mode (default `/`): the 12-step walkthrough, one screen per step, calls the same API. |
 | `static/index.html` | Expert view (`/workspace`): full reviewer workspace, queue, evaluation, invoice feed, audit trail. |
-| `tests/` | 20 tests — every controls claim in the proposal, executable. |
+| `tests/` | 32 tests — every controls claim in the proposal, executable. |
 
 ## What it is not
 
@@ -60,7 +62,7 @@ not payment. Evaluation numbers prove the *method*, not customer performance.
 
 ## Pitch materials
 
-- `docs/Resolve-Pitch-Deck.pdf` — 9-slide deck (editable source in `docs/deck/`)
+- `docs/Resolve-Pitch-Deck.pdf` — 11-slide deck (editable source in `docs/deck/`)
 - `docs/2-Pitch-Script.md` — 6-minute script with speaker notes
 - `docs/3-QA-Prep.md` — expected questions and short answers
 - `docs/Resolve-Critical-Review.md` — critical review of the written Challenge 07 response

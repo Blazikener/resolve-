@@ -6,7 +6,7 @@ blockers every time. The agent may *investigate*; only these rules decide what i
 from decimal import Decimal
 from .models import Case, Blocker, money
 
-RULES_VERSION = "rules-2026.09.2"
+RULES_VERSION = "rules-2026.10.1"
 PRICE_TOLERANCE = Decimal("0.005")     # 0.5 % - an agreed commercial tolerance, not a model guess
 
 
@@ -58,6 +58,9 @@ def run_checks(case: Case, all_cases: list[Case]) -> list[Blocker]:
     available = allocate_receipts(case, all_cases)
     invoice_total = Decimal(0)
     receipts_at_po_price = Decimal(0)
+    credit_notes = [e for e in case.evidence if e.kind == "credit_note_line" and e.trust == "authoritative"
+                    and e.entity == case.entity and e.data.get("preceding_invoice") == case.invoice_id]
+    credited = sum((d(e.data["qty"]) * d(e.data["unit_price"]) for e in credit_notes), Decimal(0))
 
     def new(type_, owner, question, amount, ids, pl):
         blockers.append(Blocker(id=f"{case.id}-B{len(blockers)+1}", type=type_, owner_role=owner, question=question,
@@ -82,6 +85,11 @@ def run_checks(case: Case, all_cases: list[Case]) -> list[Blocker]:
         # value the receipts at the price finance has approved: the PO price, or an approved amendment if one exists
         approved_price = next((p for p, src in prices if src != pl), po_price)
         receipts_at_po_price += min(received, qty) * approved_price
+        supported_qty = min(received, qty)
+        credited_value = sum((d(e.data["qty"]) * d(e.data["unit_price"]) for e in credit_notes
+                              if e.data["po_line"] == pl), Decimal(0))
+        if credited_value > 0 and (qty * price - credited_value) <= supported_qty * approved_price * (1 + PRICE_TOLERANCE):
+            continue
         grns = [e.id for e in case.evidence if e.kind == "grn_line" and e.data["po_line"] == pl and e.entity == case.entity]
         consumed = [e.id for e in case.evidence if e.kind == "prior_invoice_line" and e.data["po_line"] == pl]
 
@@ -107,10 +115,13 @@ def run_checks(case: Case, all_cases: list[Case]) -> list[Blocker]:
                 f"Link the amendment, or request a corrected invoice from the supplier.",
                 abs(price - po_price) * qty, [inv.id, pl] + [e.id for e in case.evidence if e.kind == "amendment"], pl)
 
+    net_invoiced = invoice_total - credited
     case.totals = {
         "invoice_total": money(invoice_total),
+        "credited": money(credited),
+        "net_invoiced": money(net_invoiced),
         "receipts_at_po_price": money(receipts_at_po_price),
-        "difference": money(invoice_total - receipts_at_po_price),
+        "difference": money(net_invoiced - receipts_at_po_price),
         "invoice_total_raw": str(invoice_total),
         "note": "Difference is not proven loss, and not an instruction to pay the lower amount.",
     }

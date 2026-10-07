@@ -131,7 +131,7 @@ h1{font-size:40px;line-height:1.12;letter-spacing:-.03em;font-weight:600;margin:
   <div class="r">
    <button class="ic" id="notes-btn" onclick="toggleNotes()" title="Speaker notes (N)">✎</button>
    <button class="ic" onclick="resetAll()" title="Reset demo">↺</button>
-   <span class="ic" title="12 cases in queue"><span class="dot"></span>◔</span>
+   <span class="ic" title="13 cases in queue"><span class="dot"></span>◔</span>
    <div class="avatar">AP</div>
   </div>
  </div>
@@ -166,7 +166,7 @@ const post=(p,b)=>api(p,{method:'POST',body:b?JSON.stringify(b):undefined});
 function flash(t){const f=$('#flash');f.textContent=t;f.classList.add('show');clearTimeout(f._t);f._t=setTimeout(()=>f.classList.remove('show'),2800)}
 const NICE={MISSING_RECEIPT:'Missing receipt',PRICE_UNSUPPORTED:'Price not supported',DUPLICATE_BILLING:'Duplicate billing',INCOMPLETE_DATA:'Incomplete data',UNIT_MISMATCH:'Unit mismatch'};
 const ROLE={receiving:'Receiving',procurement:'Procurement',ap_reviewer:'AP reviewer'};
-const KIND={po_line:'Purchase order',grn_line:'Goods receipt',invoice_line:'Invoice',amendment:'Amendment',prior_invoice_line:'Prior invoice',email:'Email'};
+const KIND={po_line:'Purchase order',grn_line:'Goods receipt',invoice_line:'Invoice',amendment:'Amendment',prior_invoice_line:'Prior invoice',credit_note_line:'Credit note',email:'Email'};
 const nice=t=>NICE[t]||t;
 const money=s=>parseFloat(String(s).replace(/[^0-9.]/g,''))||0;
 let META={},CASE=null,QUEUE=[],STEP=0,PHASE='before',DONE=new Set(),LAST=null,RES={},NOTES=false,DETAILS=false,BUSY=false;
@@ -175,10 +175,10 @@ let META={},CASE=null,QUEUE=[],STEP=0,PHASE='before',DONE=new Set(),LAST=null,RE
 function spotBlockers(c,title){const open=c.blockers.filter(b=>b.status==='open').length;
  return `<div class="h">${esc(c.id)} · ${esc(c.supplier)}<small>${open?open+' open':'all cleared'}</small></div>${c.blockers.map(b=>`<div class="al"><div class="t"><span>${nice(b.type)}</span><span>${esc(b.amount_at_risk)}</span></div>${b.status==='open'?`<span class="pill red">Ask ${ROLE[b.owner_role]} for the record ›</span>`:`<span class="pill green">✓ Cleared by ${esc(b.cleared_by)}</span>`}</div>`).join('')}<div class="foot">${title||'found by rules, not by the model'}</div>`}
 function spotKpis(items,foot){return `<div class="kpis">${items.map(([l,v,cls])=>`<div><small>${l}</small><b class="${cls||''}">${v}</b></div>`).join('')}</div>${foot?`<div class="foot">${foot}</div>`:''}`}
-function kpis(c){const t=c.totals,inv=money(t.invoice_total),pr=money(t.receipts_at_po_price),pct=inv?Math.round(pr/inv*100):0,zero=money(t.difference)===0;
+function kpis(c){const t=c.totals,invoice=money(t.credited)!==0?t.net_invoiced:t.invoice_total,inv=money(invoice),pr=money(t.receipts_at_po_price),pct=inv?Math.round(pr/inv*100):0,zero=money(t.difference)===0;
  return `<div class="sec">
- <div class="grid3"><div class="kpi"><small>Invoiced</small><b>${esc(t.invoice_total)}</b><div class="d">what the supplier bills</div></div>
- <div class="kpi"><small>Proven by records</small><b>${esc(t.receipts_at_po_price)}</b><div class="d ${pct===100?'green':''}">${pct}% of the invoice</div><div class="bar"><i style="width:${pct}%"></i></div></div>
+ <div class="grid3"><div class="kpi"><small>${money(t.credited)!==0?'Net invoiced':'Invoiced'}</small><b>${esc(invoice)}</b><div class="d">${money(t.credited)!==0?'after credit notes':'what the supplier bills'}</div></div>
+ <div class="kpi"><small>Proven by records</small><b>${esc(t.receipts_at_po_price)}</b><div class="d ${pct===100?'green':''}">${pct}% of net invoice</div><div class="bar"><i style="width:${pct}%"></i></div></div>
  <div class="kpi"><small>Not yet proven</small><b class="${zero?'green':''}">${esc(t.difference)}</b><div class="d">${zero?'nothing outstanding':'not a loss — a question'}</div></div></div></div>`}
 function records(c){return `<div class="sec"><div class="sh"><h2>Records on this case</h2></div><div class="tbl"><div class="hd" style="grid-template-columns:150px 140px 1fr 110px"><span>Record</span><span>ID</span><span>Content</span><span>Trust</span></div>${c.evidence.map(e=>`<div class="row" style="grid-template-columns:150px 140px 1fr 110px"><span><span class="dt" style="background:${e.trust==='untrusted'?'var(--red)':'#8b5cf6'}"></span>${KIND[e.kind]||e.kind}</span><span class="m">${esc(e.id)}</span><span>${esc(e.summary)}</span><span class="st ${e.trust==='untrusted'?'red':'green'}">${e.trust}</span></div>`).join('')}</div></div>`}
 function trace(tr,animate){const steps=tr.filter(t=>!t.meta),meta=tr.find(t=>t.meta),id='tr'+Date.now();
@@ -234,7 +234,7 @@ const S=[
   say:'Second authoritative record. Price clears. The case becomes evidence complete — which is explicitly not payment authorised.'},
  {t:'Same invoice again',cid:'R-1042',w:'code',mood:'good',
   before:{h:'The same invoice arrives again.',s:'',btn:'Re-send it'},
-  after:{h:'Same case. No duplicate.',s:'Same content hash, same case, no second request. Still 12 cases.'},
+  after:{h:'Same case. No duplicate.',s:'Same content hash, same case, no second request. Still 13 cases.'},
   spot:(c,ph)=>spotKpis([['cases in queue',ph==='after'?LAST.cases_total:QUEUE.length],['new cases',ph==='after'?0:'—',ph==='after'?'green':''],['requests re-sent',ph==='after'?0:'—',ph==='after'?'green':''],['hash','<span class="m" style="font-size:13px">'+esc(c.evidence.find(e=>e.kind==='invoice_line')?.content_hash||'')+'</span>']]),
   body:(c,ph)=>sec('Invoice feed','',rec('🧾','Invoice · ASP feed','<b>INV-218</b> · byte-identical to the first','',true)+(ph==='after'?`<div class="res violet"><b>Duplicate.</b> Existing case ${LAST.case_id} returned.</div>`:'')),extra:c=>kpis(c)+records(c),
   do:async()=>{LAST=await post('/api/cases/R-1042/events/reupload')},
@@ -246,6 +246,20 @@ const S=[
   body:(c,ph)=>ph==='after'?`<div class="res red"><b>${esc(LAST.statement)}</b></div>`:'',extra:(c,ph)=>ph==='after'?packet(LAST):kpis(c)+records(c),
   do:async()=>{await post('/api/cases/R-1042/close');LAST=await api('/api/cases/R-1042/packet')},
   say:'The packet lists every check, what cleared it, every record with its hash, every request and who approved it. It goes to their approval flow. Resolve has no payment or bank-master permission — by construction, not by prompt.'},
+ {t:'When the answer is no',cid:'R-1054',w:'human',mood:'alert',
+  before:{h:"Procurement won't accept AED 48. Dispute it properly.",s:'Under UAE e-invoicing a partial dispute ends in a credit note.',btn:'Draft credit-note request'},
+  after:{h:'AED 630 credit requested. Nothing paid.',s:'Reason code DL8.61.1.C proposed. Tax confirms.'},
+  spot:(c,ph)=>ph==='after'?`<div class="h">Credit-note request<small>${esc(LAST.status)}</small></div>${LAST.lines.map(l=>`<div class="al"><div class="t"><span>${esc(l.kind)} · ${esc(l.qty)} × AED ${esc(l.unit_amount)}</span><span>${esc(l.amount)}</span></div><div class="foot">${esc(l.po_line)}</div></div>`).join('')}<div class="al"><div class="t"><span>Total · ${esc(LAST.reason_code)}</span><span>${esc(LAST.total)}</span></div></div>`:spotBlockers(c),
+  body:(c,ph)=>ph==='after'?sec('Review before filing','',`<div class="res amber"><b>${esc(LAST.reason_status)}</b></div>`):kpis(c),extra:c=>records(c),
+  do:async()=>{LAST=await post('/api/cases/R-1054/credit-note-request')},
+  say:'A deterministic request, for a human and tax reviewer. It does not change the invoice or initiate payment.'},
+ {t:'The credit note arrives',cid:'R-1054',w:'code',mood:'good',
+  before:{h:"The supplier's credit note comes back through the ASP.",s:'',btn:'Receive credit note'},
+  after:{h:'Credit note verified. Evidence complete.',s:'Both blockers cleared by CN-501.'},
+  spot:c=>spotBlockers(c),
+  body:(c,ph)=>ph==='after'?sec('ASP credit note','',rec('🧾','Credit note · ASP','<b>CN-501</b> against <b>INV-227</b>','Authoritative')):kpis(c),extra:c=>kpis(c)+records(c),
+  do:async()=>{LAST=await post('/api/cases/R-1054/events/credit-note',{credit_note_id:'CN-501',reason_code:'DL8.61.1.C',preceding_invoice:'INV-227',lines:[{po_line:'PO-162/L1',qty:10,unit_price:48},{po_line:'PO-162/L1',qty:50,unit_price:3}]})},
+  say:'The ASP feed is authoritative. The two lines net the disputed quantity and price; rule checks rerun and cite CN-501.'},
  {t:'Red team',cid:'R-1045',w:'code',mood:'alert',
   before:{h:'What if the model is compromised?',s:'This invoice tells the system to pay a new bank account. We run a planner that obeys it.',btn:'Run the compromised planner'},
   after:{h:'7 attempts. 7 rejected. 0 side effects.',s:'The tools do not exist. Every attempt is audited.'},

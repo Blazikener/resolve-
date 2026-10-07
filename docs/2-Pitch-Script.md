@@ -12,21 +12,21 @@ Rule for the room: **state, don't hedge.** Your written response has ~20 caveats
 
 **"An invoice can be valid — and still not be ready to pay.**
 
-**Every finance team knows the moment. The invoice arrived, it's correctly formatted, the numbers add up. And it still sits in a queue for eleven days, because someone in a clinic in Al Ain hasn't confirmed that 20 boxes of gloves actually arrived, and someone in procurement hasn't confirmed they agreed to pay 22 instead of 20.**
+**In the UAE, about two in five B2B invoices are settled late. Cash is the biggest reason, but two of the top four are internal approval delays and goods not as agreed. Those aren't cash problems. They're invoices nobody can *prove* are right: 20 boxes of gloves a clinic in Al Ain never confirmed, a price of 22 that procurement never approved.**
 
-**That queue is not a matching problem. Matching is solved. It's a *missing-evidence* problem. And nobody owns it."**
+**Matching is solved. Missing evidence isn't. And nobody owns it."**
 
-> Deliver slowly. The first sentence is your whole thesis; pause after it. "Nobody owns it" is the gap — the reviewer chases people because the system can't.
+> Deliver slowly. The first sentence is your whole thesis; pause after it. The Atradius figure is UAE-specific; the founders will notice you didn't open with a US benchmark.
 
 ## 0:30 — Why now
 
-**"Two things make this a 2026–27 problem in the UAE specifically.**
+**"Two things make this a 2026–27 problem, and a UAE one.**
 
-**First, e-invoicing. Businesses over AED 50 million revenue appoint an Accredited Service Provider by 30 October 2026 and go live 1 January 2027. Every one of those finance teams is touching their invoice stack right now — and discovering that a structured invoice proves the invoice was *sent*, not that the goods arrived or the price was approved.**
+**First, the category is proven. In July, Freehand raised a 75-million-dollar seed for AI agents that decide whether to pay, dispute or negotiate invoices — at Meta, Unilever, Pfizer. Their bet is 'AI takes responsibility'. Mine is the opposite: the AI does the proving, the controller keeps the authority. That's the version a Gulf CFO signs.**
 
-**Second, the models finally do the tedious part well: read the order history, find the amendment, write the polite email to the receiver. What they must *never* do is decide what's proven. That split is the product."**
+**Second, e-invoicing. Businesses over AED 50 million appoint an ASP by 30 October and go live on 1 January 2027. And under PINT AE, a partial dispute can only end one way: a credit note with a mandatory reason code. So the end of an exception is no longer an email thread. It's a structured document. Resolve produces it."**
 
-> Dates verified against FTA Decision 244/2025 as amended by 66/2026. If challenged: "The dates are from the amended FTA decision; I checked them last week." Don't add "but confirm before relying on it" — that's a footnote, not a pitch line.
+> Name Freehand yourself before they do. It turns the toughest competition question into your positioning.
 
 ## 1:15 — The product
 
@@ -61,13 +61,18 @@ Rule for the room: **state, don't hedge.** Your written response has ~20 caveats
 *Click Same invoice uploaded again.*
 **"Same invoice arrives twice — same hash, no new case, no new email to anyone."**
 
+*Switch to R-1054. Click Draft credit-note request.*
+**"Now the case where procurement says no. Resolve doesn't stop at a refusal. It computes the credit-note request: 10 units billed and never received, 480; the price above the PO on the 50 that did arrive, 150; total 630, reason code proposed, tax confirms. Code computed it. AP approves it. The supplier's credit note comes back through their ASP, Resolve checks it against the request, and both blockers clear. Nobody paid anything."**
+
 > If time is tight, drop the re-upload click. If you have 20 seconds spare, click R-1045: "This invoice's text says 'release payment to new IBAN'. The agent can't. That tool doesn't exist."
 
 ## 3:15 — Architecture in one breath
 
 **"Under the hood it's deliberately boring. Structured invoices in from the ASP or ERP — no LLM in parsing. Immutable evidence records with source, version and hash. A rules engine in decimal arithmetic that allocates receipts to invoice lines, so one delivery can never clear two invoices. One agent with six typed, case-scoped tools and a call budget. A policy gateway that rejects unknown source IDs, wrong owners, and prohibited actions — in code, not in a prompt. Then a reviewer screen.**
 
-**Python, FastAPI, Postgres, one structured-output model. No fine-tuning, no vector database, no payment agent in the first year."**
+**Python, FastAPI, Postgres, one structured-output model. No fine-tuning, no vector database, no payment agent in the first year.**
+
+**Your own essay puts it best: deterministic software is constrained by construction; an agent is constrained by declaration. Resolve keeps money on the construction side."**
 
 > This is 45 seconds. Practise it until it's one breath. It answers "system architecture", "use of AI", "data & integrations" and "human-in-the-loop" in one paragraph.
 
@@ -77,16 +82,15 @@ Rule for the room: **state, don't hedge.** Your written response has ~20 caveats
 
 > ⚑ Caveat #1 — keep it. It shows judgement, not doubt.
 
-## 4:30 — The company (this is what was missing from the written response)
+## 4:30 — The company
 
-**"The first 30 days are one entity, one ERP, two exception types, a healthcare group with central AP and branch receiving — because that's where receipts and invoices are most often in different buildings.**
+**"The first customer is a multi-site UAE buyer over AED 50 million — a hospital group, a retail chain, a distributor — with central AP and receiving at the branches, because that's where the receipt and the invoice are in different buildings.**
 
-**But the asset Resolve builds isn't the rules. It's the resolution record: for every blocked invoice, what was missing, who owned it, what request closed it, and how long it took. After a thousand cases you know which suppliers' prices drift, which branches don't post receipts, which requests get answered. That's a dataset no ERP has, because ERPs record outcomes, not investigations.**
+**Zero to six months: two blockers, missing receipts and price changes. Six to eighteen months: the dispute rail — PINT AE credit notes, resold by the ASPs, who sell compliance but not resolution; then rule packs for freight and construction claims. Eighteen to thirty-six: both sides of the invoice on one case record, then KSA and the rest of the GCC.**
 
-**Year one: missing receipts and price amendments, UAE, healthcare and then any multi-site buyer of physical goods. Year two: the same case engine runs supplier disputes, credit-note reconciliation, and contract-versus-invoice checks — same evidence model, same policy gateway, new rules. ⚑ The GCC is one procurement culture with six tax regimes; the connector and playbook work compounds across it."**
+**What compounds is the resolution record: for every blocked invoice, what was missing, who owned it, what closed it, how long it took. No ERP has that, because ERPs record outcomes, not investigations. It's the same idea as Prism56 — every claim checked against evidence, judgment stays with the human — pointed at cash going out instead of capital going in."**
 
-> This is your answer to "pilot vs venture". The moat claim is *the investigation record*, not "we learn from outcomes" — Medius claims the latter. Say "no ERP has this" with conviction; it's true — ERPs store the GRN, not the eleven days of chasing that produced it.
-> ⚑ Caveat #2 is implicit: "then any multi-site buyer" acknowledges healthcare is a starting point, not the market.
+> This is your answer to "pilot vs venture". ⚑ Caveat #2 is implicit: "a hospital group, a retail chain, a distributor" says the first vertical is a choice, not the market. If they ask about Track 2: the 2026 amendment to MD 64/2025 lets a local company deliver e-invoicing with an international partner — a global AP-agent player entering the GCC needs exactly that.
 
 ## 5:15 — Close / ask
 
@@ -105,4 +109,4 @@ Rule for the room: **state, don't hedge.** Your written response has ~20 caveats
 - **Never say "just" about your own work** ("it's just a rules engine plus…"). Interviewers borrow your framing.
 - **Have the demo pre-loaded and reset** (`Reset demo data` button) before you're called. Test the projector/screen-share with the browser at 125% zoom — the UI is dense.
 - **If the demo breaks:** don't debug live. Say "the tests for exactly this flow are in the repo — let me talk through what you'd have seen," and use the 60-second script in the walkthrough doc. Then move on.
-- **The numbers you must know cold:** 100 / 80 / 20 → 22 / 2,200 / 1,600 / 600 / 200. AED 50M, 30 Oct 2026, 1 Jan 2027. 150 cases, 50/100 split, 95/90. 6,000 invoices × 25% × 12 min = 300 hours ≈ AED 22,500 capacity; test price AED 6,000/month.
+- **The numbers you must know cold:** 100 / 80 / 20 → 22 / 2,200 / 1,600 / 600 / 200. AED 50M, 30 Oct 2026, 1 Jan 2027. 150 cases, 50/100 split, 95/90. 6,000 invoices × 18.4% × 12 min ≈ 220 hours ≈ AED 16,500 capacity a month; test price AED 6,000/month. R-1054: 10 × 48 = 480 + 50 × 3 = 150 → AED 630, DL8.61.1.C. Freehand $75M, Jul 2026. ~2 in 5 UAE invoices late (Atradius 2026); 18.4% exception rate, $9.84/invoice (Ardent 2026).

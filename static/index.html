@@ -155,6 +155,7 @@ th{text-transform:none;letter-spacing:0;font-size:12px;background:#f6f6f8}th:fir
   <!-- ---------------------------------------------------------------- centre: views -->
   <section id="view-queue" class="stack">
     <div class="panel casehead" id="casehead"></div>
+    <div class="panel hidden" id="credit-note-panel"></div>
     <div class="subnav" id="subnav">
       <button class="active" data-sub="blockers" onclick="showSub('blockers')">Blockers <span class="cnt" id="cnt-blockers"></span></button>
       <button data-sub="agent" onclick="showSub('agent')">Agent</button>
@@ -231,8 +232,8 @@ th{text-transform:none;letter-spacing:0;font-size:12px;background:#f6f6f8}th:fir
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let META={}, QUEUE=[], CASE=null, SEL='R-1042', EVAL=null, VIEW='queue';
-const api=async(path,opts={})=>{const r=await fetch(path,{headers:{'content-type':'application/json'},...opts});const j=await r.json().catch(()=>({}));if(!r.ok){flash(j.detail||('HTTP '+r.status));throw new Error(j.detail||r.status)}return j};
+let META={}, QUEUE=[], CASE=null, SEL='R-1042', EVAL=null, VIEW='queue', CREDIT_PREVIEW=null;
+const api=async(path,opts={})=>{const r=await fetch(path,{headers:{'content-type':'application/json'},...opts});const j=await r.json().catch(()=>({}));if(!r.ok){const msg=j.detail||j.errors?.join(' · ')||('HTTP '+r.status);flash(msg);throw new Error(msg)}return j};
 const post=(p,b)=>api(p,{method:'POST',body:b?JSON.stringify(b):undefined});
 function flash(t){const f=$('#flash');f.textContent=t;f.classList.add('show');clearTimeout(f._t);f._t=setTimeout(()=>f.classList.remove('show'),3200)}
 const money=x=>x||'—'; const nice=t=>t.replace(/_/g,' ').toLowerCase();
@@ -250,7 +251,7 @@ function renderQueue(){const open=QUEUE.filter(c=>c.status==='open');const at=QU
   <span class="meta"><span class="age ${c.ageing_days>=7?'hot':''}">${c.ageing_days}d</span>${c.blocker_types.map(t=>`<span class="pill ${t}">${nice(t)}</span>`).join('')}</span></li>`).join('')}
 
 function showSub(n){document.querySelectorAll('.sub').forEach(e=>e.classList.toggle('hidden',e.id!=='sub-'+n));document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.sub===n))}
-async function selectCase(id){SEL=id;CASE=await api('/api/cases/'+id);renderQueue();renderCase();if(VIEW!=='queue')showView('queue');window.scrollTo({top:0,behavior:'smooth'})}
+async function selectCase(id){if(SEL!==id)CREDIT_PREVIEW=null;SEL=id;CASE=await api('/api/cases/'+id);renderQueue();renderCase();if(VIEW!=='queue')showView('queue');window.scrollTo({top:0,behavior:'smooth'})}
 async function refreshCase(){CASE=await api('/api/cases/'+SEL);await loadQueue();renderCase()}
 
 // ------------------------------------------------------------------ case rendering
@@ -260,7 +261,7 @@ function renderCase(){const c=CASE;const open=c.blockers.filter(b=>b.status==='o
   <div class="totals"><div class="tot"><div class="l">Invoice</div><div class="v">${money(c.totals.invoice_total)}</div><div class="n">invoiced</div></div>
   <div class="tot"><div class="l">Proven</div><div class="v">${money(c.totals.receipts_at_po_price)}</div><div class="n">by records</div></div>
   <div class="tot"><div class="l">Difference</div><div class="v">${money(c.totals.difference)}</div><div class="n">not yet proven</div></div></div></div>
-  <div><button class="ok" ${c.status==='evidence_complete'?'':'disabled'} onclick="closeCase()">Send resolution packet →</button><br><button style="margin-top:6px" onclick="showPacket()">View packet</button></div>`;
+  <div><button class="primary" onclick="previewCreditRequest()">Credit-note request</button><br><button class="ok" style="margin-top:6px" ${c.status==='evidence_complete'?'':'disabled'} onclick="closeCase()">Send resolution packet →</button><br><button style="margin-top:6px" onclick="showPacket()">View packet</button></div>`;
  $('#cnt-blockers').textContent=open.length||'';$('#cnt-drafts').textContent=c.drafts.length||'';$('#cnt-evidence').textContent=c.evidence.length;$('#cnt-audit').textContent=c.audit.length;
  const hasDrafts=c.drafts.length>0, approved=c.drafts.some(d=>d.status==='approved');
  const A=[['Model','investigates',c.agent_trace.length?'done':'', 'reads records, proposes the next lookup and the smallest request'],
@@ -282,6 +283,25 @@ function renderCase(){const c=CASE;const open=c.blockers.filter(b=>b.status==='o
   <div class="ev"><b>Price amendment</b><div class="d">Only <i>approved</i> counts.</div><div class="f"><input id="ev-amd-pl" value="${pl}" style="width:100px"><input id="ev-amd-price" type="number" step="0.01" value="${price}" style="width:80px"><label class="small"><input type="checkbox" id="ev-amd-ok" checked> approved</label><button onclick="evAmd()">Record amendment</button></div></div>
   <div class="ev"><b>Same invoice again</b><div class="d">Same case. No duplicate.</div><div class="f"><button onclick="evReupload()">Re-send</button></div></div>`;
  $('#audit').innerHTML=[...c.audit].reverse().map(a=>`<div><span>${a.seq}</span><span class="a-${a.actor}">${a.actor}</span><span>${a.action}</span><span>${esc(a.detail)}${a.model!=='-'?` <i>[${esc(a.model)}]</i>`:''}</span></div>`).join('');
+ renderCreditRequest();
+}
+
+function renderCreditRequest(){
+ const panel=$('#credit-note-panel'),request=CREDIT_PREVIEW||CASE.credit_request;
+ if(!request){panel.classList.add('hidden');panel.innerHTML='';return}
+ const received=CASE.evidence.some(e=>e.kind==='credit_note_line'&&e.id.startsWith('CN-501/'));
+ panel.classList.remove('hidden');
+ panel.innerHTML=`<div class="toolbar"><h3 style="margin:0">Credit-note request · ${esc(request.total)}</h3><span class="pill">${esc(request.status)}</span><span class="sp"></span><button onclick="previewCreditRequest()">Refresh preview</button></div>
+  <div class="kv"><div>Reason</div><div>${esc(request.reason_code)} · ${esc(request.reason_status||'approved for supplier')}</div><div>Preceding invoice</div><div class="mono">${esc(request.preceding_invoice)}</div></div>
+  <table style="margin-top:10px"><tr><th>Kind</th><th>PO line</th><th>Qty</th><th>Unit amount</th><th>Amount</th></tr>${request.lines.map(line=>`<tr><td>${esc(line.kind)}</td><td class="mono">${esc(line.po_line)}</td><td class="mono">${esc(line.qty)}</td><td class="mono">AED ${esc(line.unit_amount)}</td><td class="mono">${esc(line.amount)}</td></tr>`).join('')}</table>
+  <div class="toolbar" style="margin-top:10px">${request.status==='draft'?'<button class="primary" onclick="approveCreditRequest()">Approve for supplier</button>':''}${request.status==='approved_for_supplier'&&!received?'<button class="ok" onclick="receiveCreditNote()">Receive supplier credit note</button>':''}${received?'<span class="pill evidence_complete">ASP evidence received</span>':''}<span class="note">${esc(request.vat_note||'')}</span></div>`;
+}
+async function previewCreditRequest(){CREDIT_PREVIEW=await api(`/api/cases/${SEL}/credit-note-request`);renderCreditRequest()}
+async function approveCreditRequest(){CREDIT_PREVIEW=await post(`/api/cases/${SEL}/credit-note-request`,{});await refreshCase();flash('Credit-note request approved for supplier.')}
+async function receiveCreditNote(){
+ const request=CREDIT_PREVIEW||CASE.credit_request;
+ await post(`/api/cases/${SEL}/events/credit-note`,{credit_note_id:'CN-501',reason_code:request.reason_code,preceding_invoice:request.preceding_invoice,supplier:CASE.supplier,entity:CASE.entity,lines:request.lines.map(line=>({po_line:line.po_line,qty:+line.qty,unit_price:+line.unit_amount}))});
+ await refreshCase();flash('Supplier credit note received through the ASP feed.')
 }
 
 function renderDrafts(){const c=CASE;$('#drafts').innerHTML=c.drafts.length?c.drafts.map(d=>{const b=c.blockers.find(b=>b.id===d.blocker_id)||{};return `<div class="draft ${d.status}">

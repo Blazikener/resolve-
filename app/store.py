@@ -87,6 +87,21 @@ def erp_prior_invoice(entity: str, inv_line: str, po_line: str, qty, price) -> E
     return ev
 
 
+def erp_credit_note(entity: str, cn_id: str, preceding_invoice: str, reason_code: str,
+                    lines: list[dict]) -> list[Evidence]:
+    evidence = []
+    for i, line in enumerate(lines, 1):
+        qty, unit_price = line["qty"], line["unit_price"]
+        po_line = line["po_line"]
+        evidence.append(Evidence(
+            id=f"{cn_id}/L{i}", kind="credit_note_line", entity=entity, trust="authoritative", source="ASP",
+            summary=f"Credit note: {qty:g} × AED {unit_price:g} against {po_line} ({reason_code})",
+            data={"po_line": po_line, "qty": qty, "unit_price": unit_price,
+                  "preceding_invoice": preceding_invoice, "reason_code": reason_code},
+            content_hash=content_hash(entity, cn_id, preceding_invoice, reason_code, po_line, qty, unit_price)))
+    return evidence
+
+
 def linked_records(entity: str, po_lines: set[str]) -> list[Evidence]:
     """Everything the ERP holds for these PO lines, in this entity. Cross-entity records are never linked."""
     e = erp(entity)
@@ -203,6 +218,11 @@ def seed() -> None:
     ingest_invoice(W, "Emirates Diagnostics LLC", "INV-3010", "PO-210", [{"po_line": "PO-210/L1", "qty": 20, "unit_price": 480}], day(4))
     # R-1053  clinic-west: nothing received yet (GRN posted with 0), stale 7 days -> MISSING_RECEIPT 80
     ingest_invoice(W, "Desert Lab Consumables", "INV-3012", "PO-212", [{"po_line": "PO-212/L1", "qty": 80, "unit_price": 27}], day(7))
+    # R-1054  procurement refuses the price; the dispute ends in a credit note
+    erp_po_line(N, "PO-162/L1", 60, 45, "wound dressing packs")
+    erp_grn(N, "GRN-100/L1", "PO-162/L1", 50, day(8))
+    ingest_invoice(N, "MedEquip Trading FZE", "INV-227", "PO-162",
+                   [{"po_line": "PO-162/L1", "qty": 60, "unit_price": 48}], day(9))
 
 
 seed()
